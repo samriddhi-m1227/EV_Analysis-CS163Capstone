@@ -29,4 +29,4 @@ Early development stage
 CS 163 Capstone Project Team
 
 - Samriddhi Matharu - BS Data Science at SJSU
-- Bhavya V - 
+- Bhavya Vatsavayi - BS Data Science at SJSU
