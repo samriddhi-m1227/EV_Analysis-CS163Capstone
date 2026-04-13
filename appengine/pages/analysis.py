@@ -31,6 +31,53 @@ def viz_card(title, image_file, description):
     )
 
 
+def two_up_card(title, left_title, left_img, left_desc, right_title, right_img, right_desc):
+    return html.Div(
+        className="card",
+        children=[
+            html.H3(title, className="subsection-title"),
+            html.Div(
+                style={
+                    "display": "grid",
+                    "gridTemplateColumns": "1fr 1fr",
+                    "gap": "24px",
+                    "alignItems": "start",
+                },
+                children=[
+                    html.Div(
+                        children=[
+                            html.H4(left_title),
+                            html.Img(
+                                src=f"/static/images/{left_img}",
+                                style={
+                                    "width": "100%",
+                                    "borderRadius": "10px",
+                                    "marginBottom": "12px",
+                                },
+                            ),
+                            html.P(left_desc, className="page-text"),
+                        ]
+                    ),
+                    html.Div(
+                        children=[
+                            html.H4(right_title),
+                            html.Img(
+                                src=f"/static/images/{right_img}",
+                                style={
+                                    "width": "100%",
+                                    "borderRadius": "10px",
+                                    "marginBottom": "12px",
+                                },
+                            ),
+                            html.P(right_desc, className="page-text"),
+                        ]
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
 layout = html.Div(
     className="page-container",
     children=[
@@ -49,19 +96,17 @@ layout = html.Div(
         ),
 
         section_title(
-            "1. Infrastructure Access and EV Adoption",
-            "These visuals show how charging availability relates to EV adoption and how that relationship changes across income groups."
+            "1. Infrastructure access and EV adoption",
+            "These visuals examine how charging availability relates to EV adoption and how infrastructure patterns change across communities."
         ),
 
-        viz_card(
+        two_up_card(
+            "Infrastructure, Income, and EV Adoption",
             "EV Adoption vs Charging Access by Income",
             "ev_vs_chargingaccess.png",
             "This plot shows the relationship between charging access and EV adoption across income levels. Even at similar levels of infrastructure, "
             "higher-income ZIP codes consistently exhibit higher EV adoption rates. This indicates that while charging access supports adoption, "
-            "income plays a more dominant role. Overall, the results suggest that infrastructure alone is not sufficient to drive equitable EV adoption."
-        ),
-
-        viz_card(
+            "income plays a more dominant role. Overall, the results suggest that infrastructure alone is not sufficient to drive equitable EV adoption.",
             "Charging Access by Income Quintile",
             "charging_incomequantile.png",
             "This plot shows how charging infrastructure varies across income levels. Charging access increases steadily with income, with the highest-income "
@@ -69,21 +114,34 @@ layout = html.Div(
             "Such disparities suggest that access to charging resources may contribute to differences in EV adoption across communities."
         ),
 
+        two_up_card(
+            "Alternative Infrastructure Measures",
+            "EV Adoption vs Charging Ports per 10,000 People",
+            "ev_charger10k.png",
+            "This plot compares EV adoption with charging access measured per 10,000 people. Most ZIP codes are still clustered at low levels of both infrastructure and EV adoption, but the pattern is easier to read than the chargers-per-EV version. There is a slight positive trend, suggesting that places with more charging access per population often have somewhat higher EV adoption. At the same time, the spread of the points shows that infrastructure is only one part of the story.",
+            "EV Adoption vs Chargers per 1,000 EV",
+            "ev_chargers.png",
+            "This plot compares EV adoption with chargers measured relative to the number of EVs already on the road. The points are much more scattered, with several extreme values, so the pattern is harder to interpret clearly. Compared with the population-based measure, this version is less stable and less useful for understanding broad differences across ZIP codes. Overall, it suggests that this metric is noisier and not as helpful for explaining EV adoption patterns."
+        ),
+
         section_title(
             "2. Who adopts EVs most?",
-            "These results highlight the structural characteristics of the highest-adopting communities."
+            "These results show the structural characteristics shared by the ZIP codes with the highest EV adoption."
         ),
 
         viz_card(
             "Top EV-Adopting ZIP Codes",
             "zip_ev_adopting.png",
-            "This table highlights the ZIP codes with the highest EV adoption rates. These areas consistently exhibit high income levels, strong educational attainment, "
-            "and lower renter shares, indicating greater homeownership. They also tend to have moderate to high charging infrastructure and lower environmental burden. "
-            "Overall, this shows that EV adoption is concentrated in well-resourced communities with both financial capacity and access to supporting infrastructure."
+            "This table highlights the ZIP codes with the highest EV adoption rates and makes it easier to see which variables repeatedly appear in high-adoption communities. "
+            "The strongest pattern is in Median_Household_Income: the top ZIP codes have very high incomes, often near the upper end of the dataset. They also show consistently high "
+            "BachOrHigher_perc values, meaning these communities have a large share of college-educated residents. RenterShare is generally low, which suggests higher homeownership and "
+            "likely better access to home charging. In addition, many of these ZIP codes have moderate to high PortsPer10kPeople and relatively low CES_Score_ZIP values, indicating more charging access "
+            "and lower environmental burden. Overall, the table shows that the highest-EV ZIP codes are not random outliers; they are communities where income, education, housing stability, "
+            "infrastructure access, and lower disadvantage align."
         ),
 
         section_title(
-            "3. What Factors Matter Most?",
+            "3. What factors matter most?",
             "The regression model helps identify which variables have the strongest relationship with EV adoption after accounting for multiple factors at once."
         ),
 
@@ -97,8 +155,8 @@ layout = html.Div(
         ),
 
         section_title(
-            "4. Race, income, and Structural inequality",
-            "These visuals compare raw demographic patterns with income-controlled patterns to show how much of the apparent racial disparity is explained by socioeconomic conditions."
+            "4. Race, income, and structural inequality",
+            "These visuals compare racial composition with EV adoption while keeping income visible, showing how much of the apparent disparity is explained by socioeconomic conditions."
         ),
 
         html.Div(
@@ -113,43 +171,65 @@ layout = html.Div(
                         "gap": "20px",
                     },
                     children=[
-                        html.Div([
-                            html.H4("Asian Population Share"),
-                            html.Img(
-                                src="/static/images/asian.png",
-                                style={"width": "100%", "borderRadius": "10px"}
-                            ),
-                        ]),
-                        html.Div([
-                            html.H4("White Population Share"),
-                            html.Img(
-                                src="/static/images/white.png",
-                                style={"width": "100%", "borderRadius": "10px"}
-                            ),
-                        ]),
-                        html.Div([
-                            html.H4("Black Population Share"),
-                            html.Img(
-                                src="/static/images/black.png",
-                                style={"width": "100%", "borderRadius": "10px"}
-                            ),
-                        ]),
-                        html.Div([
-                            html.H4("Latino Population Share"),
-                            html.Img(
-                                src="/static/images/latino.png",
-                                style={"width": "100%", "borderRadius": "10px"}
-                            ),
-                        ]),
+                        html.Div(
+                            children=[
+                                html.H4("Asian Population Share"),
+                                html.Img(
+                                    src="/static/images/asian.png",
+                                    style={"width": "100%", "borderRadius": "10px", "marginBottom": "10px"},
+                                ),
+                                html.P(
+                                    "Among the four race plots, the Asian_perc plot shows one of the clearest upward patterns, with many of the highest EV_perc points appearing in ZIP codes "
+                                    "that also fall into the top income quintile. This suggests that the positive association is less about Asian population share by itself and more about the fact "
+                                    "that many high-Asian-share ZIP codes in the dataset are also relatively affluent."
+                                ),
+                            ]
+                        ),
+                        html.Div(
+                            children=[
+                                html.H4("White Population Share"),
+                                html.Img(
+                                    src="/static/images/white.png",
+                                    style={"width": "100%", "borderRadius": "10px", "marginBottom": "10px"},
+                                ),
+                                html.P(
+                                    "The White_perc plot shows a broad spread of EV adoption values, but the highest EV_perc points are again concentrated in higher-income ZIP codes. "
+                                    "This indicates that while some high-white-share communities also have high EV adoption, income remains the main factor separating the highest-adopting areas from the rest."
+                                ),
+                            ]
+                        ),
+                        html.Div(
+                            children=[
+                                html.H4("Black Population Share"),
+                                html.Img(
+                                    src="/static/images/black.png",
+                                    style={"width": "100%", "borderRadius": "10px", "marginBottom": "10px"},
+                                ),
+                                html.P(
+                                    "The Black_perc plot is more compressed, with many observations clustered at lower Black population shares and relatively lower EV adoption. "
+                                    "However, the color coding still shows that whenever EV adoption is higher, those ZIP codes tend to belong to higher income quintiles. This suggests that the pattern is primarily driven by income rather than racial composition alone."
+                                ),
+                            ]
+                        ),
+                        html.Div(
+                            children=[
+                                html.H4("Latino Population Share"),
+                                html.Img(
+                                    src="/static/images/latino.png",
+                                    style={"width": "100%", "borderRadius": "10px", "marginBottom": "10px"},
+                                ),
+                                html.P(
+                                    "The Latino_perc plot shows a noticeable downward visual pattern, where very high Latino population shares are less likely to coincide with high EV adoption. "
+                                    "Still, the color-coded points reveal that income explains much of this relationship: the highest EV_perc values remain concentrated in higher-income ZIP codes, regardless of Latino population share."
+                                ),
+                            ]
+                        ),
                     ],
                 ),
 
                 html.P(
-                    "These plots show EV adoption across different racial compositions while controlling for income levels. "
-                    "Although the raw patterns suggest differences across racial groups, the color-coded income quintiles show that "
-                    "higher EV adoption is consistently concentrated in higher-income areas across all groups. This indicates that income, "
-                    "rather than race itself, plays the dominant role in explaining EV adoption patterns. Overall, the results suggest that "
-                    "socioeconomic factors drive the observed disparities across racial groups."
+                    "Taken together, these four plots show that while the raw distributions differ somewhat by racial composition, higher EV adoption is consistently concentrated in higher-income areas across all groups. "
+                    "This indicates that income, rather than race itself, plays the dominant role in explaining EV adoption patterns. Overall, the results suggest that socioeconomic factors drive much of the observed disparity across racial groups."
                 ),
             ],
         ),
@@ -164,7 +244,7 @@ layout = html.Div(
         ),
 
         section_title(
-            "5. Additional Structural and Behavioral Patterns",
+            "5. Additional structural and behavioral patterns",
             "These plots extend the analysis by looking at vehicle transition pathways and the role of housing form."
         ),
 
