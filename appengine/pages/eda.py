@@ -5,15 +5,13 @@ from dash import html, dash_table
 
 dash.register_page(__name__, path="/eda")
 
-# --- Load dataset ---
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # appengine/
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "data", "final.csv")
 df = pd.read_csv(DATA_PATH)
 
 COLUMN_DEFINITIONS = {
     "ZIP": "ZIP code identifier for each observation.",
     "County": "California county corresponding to the ZIP code.",
-
     "Diesel": "Number of diesel vehicles registered.",
     "Electric": "Number of fully electric vehicles.",
     "Flex_Fuel": "Number of flex-fuel vehicles.",
@@ -24,10 +22,8 @@ COLUMN_DEFINITIONS = {
     "PHEV": "Number of plug-in hybrid electric vehicles.",
     "Propane": "Number of propane vehicles.",
     "Total_Cars": "Total number of vehicles registered in the ZIP code.",
-
     "Total_EV": "Total number of electric vehicles, combining battery electric and plug-in hybrid vehicles.",
     "EV_perc": "Percentage of vehicles that are electric. This is the primary target variable for analysis.",
-
     "Median_Household_Income": "Median household income in the ZIP code.",
     "Total_Population": "Total population residing in the ZIP code.",
     "Latino_perc": "Percentage of residents identifying as Latino.",
@@ -35,95 +31,147 @@ COLUMN_DEFINITIONS = {
     "Asian_perc": "Percentage of residents identifying as Asian.",
     "Black_perc": "Percentage of residents identifying as Black.",
     "BachOrHigher_perc": "Percentage of residents with a bachelor's degree or higher.",
-
     "Zillow_Home_Value_Index": "Estimated average housing value in the ZIP code.",
-    "Gini": "Income inequality index from 0 to 1. Lower values indicate more equal income distribution, while higher values indicate greater inequality.",
+    "Gini": "Income inequality index from 0 to 1.",
     "RenterShare": "Share of households that rent their homes.",
     "SingleFamilyShare": "Share of housing units that are single-family homes.",
     "MultiUnitShare": "Share of housing units that are multi-unit buildings.",
     "ZeroVehicleShare": "Share of households without access to a vehicle.",
-    "PovertyShare": "Share of residents living below the poverty line. Higher values indicate greater economic disadvantage.",
-
-    "CES_Score_ZIP": "Overall CalEnviroScreen score representing environmental and socioeconomic vulnerability. Higher scores indicate worse burden.",
-    "PollutionBurden_ZIP": "Pollution exposure indicator. Higher values indicate worse pollution burden.",
-    "Traffic_ZIP": "Traffic-related pollution indicator. Higher values indicate greater exposure to traffic burden.",
-
+    "PovertyShare": "Share of residents living below the poverty line.",
+    "CES_Score_ZIP": "Overall CalEnviroScreen score. Higher = worse burden.",
+    "PollutionBurden_ZIP": "Pollution exposure indicator. Higher = worse.",
+    "Traffic_ZIP": "Traffic-related pollution indicator.",
     "Num_Stations": "Number of EV charging stations in the ZIP code.",
-    "Total_Ports": "Total number of EV charging ports across all stations in the ZIP code.",
+    "Total_Ports": "Total number of EV charging ports.",
     "L2_Ports": "Number of Level 2 charging ports.",
     "DC_Fast_Ports": "Number of DC fast charging ports.",
 }
 
+VARIABLE_GROUPS = {
+    "EV Adoption": ["EV_perc", "Total_EV", "Electric", "PHEV"],
+    "Vehicle Mix": ["Gasoline", "Diesel", "Gasoline_Hybrid", "Flex_Fuel", "Natural_Gas", "Hydrogen", "Propane", "Total_Cars"],
+    "Socioeconomic": ["Median_Household_Income", "BachOrHigher_perc", "PovertyShare", "Gini"],
+    "Demographics": ["Total_Population", "Latino_perc", "White_perc", "Asian_perc", "Black_perc"],
+    "Housing": ["Zillow_Home_Value_Index", "RenterShare", "SingleFamilyShare", "MultiUnitShare", "ZeroVehicleShare"],
+    "Environment": ["CES_Score_ZIP", "PollutionBurden_ZIP", "Traffic_ZIP"],
+    "Infrastructure": ["Num_Stations", "Total_Ports", "L2_Ports", "DC_Fast_Ports"],
+    "Geography": ["ZIP", "County"],
+}
 
-def section_card(title, children):
+GROUP_COLORS = {
+    "EV Adoption": "chip-green",
+    "Vehicle Mix": "chip-slate",
+    "Socioeconomic": "chip-blue",
+    "Demographics": "chip-purple",
+    "Housing": "chip-orange",
+    "Environment": "chip-red",
+    "Infrastructure": "chip-teal",
+    "Geography": "chip-slate",
+}
+
+
+def page_banner(title, subtitle, chips):
     return html.Div(
-        [
-            html.H2(title, className="section-title"),
-            html.Div(children, className="section-body"),
+        className="page-banner",
+        children=[
+            html.Div(className="hero-dot-grid"),
+            html.H1(title, className="page-banner-title"),
+            html.P(subtitle, className="page-banner-sub"),
+            html.Div(chips, className="page-banner-stats"),
         ],
-        className="card",
+    )
+
+
+def banner_chip(value, label):
+    return html.Div(
+        [html.Span(value, className="hero-stat-value"), html.Span(label, className="hero-stat-label")],
+        className="hero-stat-chip",
+    )
+
+
+def column_chip(name):
+    group_color = next(
+        (GROUP_COLORS[g] for g, cols in VARIABLE_GROUPS.items() if name in cols),
+        "chip-slate",
+    )
+    return html.Span(
+        name,
+        className=f"column-chip {group_color}",
+        title=COLUMN_DEFINITIONS.get(name, "No description available."),
     )
 
 
 def dataset_preview_table(dataframe, n_rows=5):
     preview_df = dataframe.head(n_rows).copy()
     columns = [{"name": col, "id": col} for col in preview_df.columns]
-
     return dash_table.DataTable(
         columns=columns,
         data=preview_df.to_dict("records"),
         page_size=n_rows,
         sort_action="native",
-        style_table={
-            "overflowX": "auto",
-            "border": "1px solid var(--border)",
-            "borderRadius": "12px",
-        },
+        style_table={"overflowX": "auto", "border": "1px solid var(--border)", "borderRadius": "12px"},
         style_cell={
-            "textAlign": "left",
-            "padding": "10px",
-            "minWidth": "120px",
-            "maxWidth": "220px",
-            "whiteSpace": "normal",
-            "backgroundColor": "var(--surface)",
-            "color": "var(--text)",
-            "border": "1px solid var(--border)",
-            "fontFamily": "Inter, sans-serif",
-            "fontSize": "13px",
+            "textAlign": "left", "padding": "10px", "minWidth": "120px", "maxWidth": "220px",
+            "whiteSpace": "normal", "backgroundColor": "var(--surface)", "color": "var(--text)",
+            "border": "1px solid var(--border)", "fontFamily": "Inter, sans-serif", "fontSize": "13px",
         },
-        style_header={
-            "backgroundColor": "var(--surface-2)",
-            "fontWeight": "600",
-            "color": "var(--heading)",
-        },
+        style_header={"backgroundColor": "var(--surface-2)", "fontWeight": "600", "color": "var(--heading)"},
     )
 
 
-def column_chip(name):
-    return html.Span(
-        name,
-        className="column-chip",
-        title=COLUMN_DEFINITIONS.get(name, "No description available."),
+def viz_wide(title, image_file, caption, insight):
+    """Single viz: image left, insight right."""
+    return html.Div(
+        className="viz-wide",
+        children=[
+            html.H3(title, className="subsection-title"),
+            html.Div(
+                className="viz-wide-row",
+                children=[
+                    html.Div(
+                        className="viz-wide-img-col",
+                        children=[
+                            html.Img(src=f"/static/images/{image_file}", className="viz-image"),
+                            html.P(caption, className="viz-caption"),
+                        ],
+                    ),
+                    html.Div(
+                        className="viz-wide-text-col",
+                        children=[html.P(insight, className="viz-insight-text")],
+                    ),
+                ],
+            ),
+        ],
     )
 
 
-def viz_block(title, image_file, caption, insight):
+def viz_paired(title, image_file, caption, insight):
+    """Compact viz card for use inside a two-column grid."""
     return html.Div(
         className="viz-block",
         children=[
             html.H3(title, className="subsection-title"),
-            html.Div(
-                className="viz-frame",
-                children=[
-                    html.Img(
-                        src=f"/static/images/{image_file}",
-                        className="viz-image",
-                    ),
-                    html.P(caption, className="viz-caption"),
-                ],
-            ),
-            html.P(insight, className="viz-description"),
+            html.Img(src=f"/static/images/{image_file}", className="viz-image"),
+            html.P(caption, className="viz-caption"),
+            html.P(insight, className="insight-note", style={"marginTop": "12px"}),
         ],
+    )
+
+
+def quality_category(label, items):
+    return html.Div(
+        [
+            html.Span(label, className="qc-label"),
+            html.Ul([html.Li(i) for i in items], className="qc-list"),
+        ],
+        className="qc-card",
+    )
+
+
+def insight_card(number, text):
+    return html.Div(
+        [html.Span(str(number), className="ins-number"), html.P(text, className="ins-text")],
+        className="ins-card",
     )
 
 
@@ -132,81 +180,61 @@ layout = html.Div(
         html.Div(
             className="page-container",
             children=[
-                html.H1("Exploratory Data Analysis", className="page-header"),
 
-                section_card(
-                    "1. EDA Overview",
-                    [
-                        html.P(
-                            "Using the final integrated ZIP-level dataset, this section explores the overall distribution of EV adoption and the early relationships between EV adoption, socioeconomic conditions, environmental burden, housing structure, and charging infrastructure."
-                        ),
-                        html.P(
-                            "Below is a preview of the final merged dataset used for all analysis."
-                        ),
-                        dataset_preview_table(df),
-                        html.Div(
-                            "The table above shows a small sample of the merged dataset and can be scrolled horizontally to inspect the full structure.",
-                            className="insight-note",
-                        ),
-                    ],
+                # BANNER
+                page_banner(
+                    "Exploratory Data Analysis",
+                    "Uncovering patterns in EV adoption, income, environment, and infrastructure across California ZIP codes",
+                    [],
                 ),
 
+                # 1. OVERVIEW + PREVIEW
                 html.Div(
                     className="card",
                     children=[
-                        html.H2("2. Key Variables Used in EDA", className="section-title"),
+                        html.H2("1. Dataset Preview", className="section-title"),
+                        html.Div(className="section-body", children=[
+                            html.P(
+                                "Using the final integrated ZIP-level dataset, this section explores the distribution of EV adoption "
+                                "and early relationships between adoption rates, socioeconomic conditions, environmental burden, housing structure, and charging infrastructure."
+                            ),
+                            dataset_preview_table(df),
+                            html.Div(
+                                "Scroll horizontally to inspect all columns. Click any header to sort.",
+                                className="insight-note",
+                                style={"marginTop": "12px"},
+                            ),
+                        ]),
+                    ],
+                ),
+
+                # 2. KEY VARIABLES
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("2. Key Variables", className="section-title"),
                         html.Div(
                             className="two-column-grid",
                             children=[
                                 html.Div(
                                     className="half-card variable-card",
                                     children=[
-                                        html.H3("Full Dataset Columns", className="subsection-title"),
-                                        html.P(
-                                            "The final integrated dataset contains variables related to vehicle composition, EV adoption, demographics, housing, inequality, environmental burden, and charging infrastructure."
-                                        ),
-                                        html.P(
-                                            "Hover over any variable below to view its definition.",
-                                            className="caption-text",
-                                        ),
+                                        html.H3("All Dataset Columns", className="subsection-title"),
+                                        html.P("Hover any chip to see its definition. Color = variable group.", className="caption-text"),
                                         html.Div(
                                             className="column-chip-container",
                                             children=[
-                                                column_chip("ZIP"),
-                                                column_chip("Diesel"),
-                                                column_chip("Electric"),
-                                                column_chip("Flex_Fuel"),
-                                                column_chip("Gasoline"),
-                                                column_chip("Gasoline_Hybrid"),
-                                                column_chip("Hydrogen"),
-                                                column_chip("Natural_Gas"),
-                                                column_chip("PHEV"),
-                                                column_chip("Propane"),
-                                                column_chip("Total_Cars"),
-                                                column_chip("Total_EV"),
-                                                column_chip("EV_perc"),
-                                                column_chip("Median_Household_Income"),
-                                                column_chip("Latino_perc"),
-                                                column_chip("White_perc"),
-                                                column_chip("Asian_perc"),
-                                                column_chip("Black_perc"),
-                                                column_chip("BachOrHigher_perc"),
-                                                column_chip("Total_Population"),
-                                                column_chip("Zillow_Home_Value_Index"),
-                                                column_chip("Gini"),
-                                                column_chip("RenterShare"),
-                                                column_chip("SingleFamilyShare"),
-                                                column_chip("MultiUnitShare"),
-                                                column_chip("ZeroVehicleShare"),
-                                                column_chip("PovertyShare"),
-                                                column_chip("CES_Score_ZIP"),
-                                                column_chip("PollutionBurden_ZIP"),
-                                                column_chip("Traffic_ZIP"),
-                                                column_chip("County"),
-                                                column_chip("Num_Stations"),
-                                                column_chip("Total_Ports"),
-                                                column_chip("L2_Ports"),
-                                                column_chip("DC_Fast_Ports"),
+                                                html.Div(
+                                                    [
+                                                        html.Span(group, className="chip-group-label"),
+                                                        html.Div(
+                                                            [column_chip(c) for c in cols],
+                                                            className="chip-group-row",
+                                                        ),
+                                                    ],
+                                                    className="chip-group",
+                                                )
+                                                for group, cols in VARIABLE_GROUPS.items()
                                             ],
                                         ),
                                     ],
@@ -214,50 +242,20 @@ layout = html.Div(
                                 html.Div(
                                     className="half-card variable-card",
                                     children=[
-                                        html.H3("Priority Variables for Interpretation", className="subsection-title"),
+                                        html.H3("Priority Variables", className="subsection-title"),
                                         html.Div(
-                                            "EV_perc is the primary outcome variable in this project and serves as the main measure of EV adoption across California ZIP codes.",
+                                            "EV_perc is the primary outcome — the share of registered vehicles that are electric in each ZIP code.",
                                             className="insight-note",
                                         ),
                                         html.Ul(
                                             className="priority-variable-list",
                                             children=[
-                                                html.Li(
-                                                    [
-                                                        html.Strong("Target / Outcome: "),
-                                                        "EV_perc captures the share of registered vehicles in a ZIP code that are electric and is the central variable used throughout EDA and later modeling.",
-                                                    ]
-                                                ),
-                                                html.Li(
-                                                    [
-                                                        html.Strong("Socioeconomic context: "),
-                                                        "Median_Household_Income and BachOrHigher_perc help represent economic capacity and educational advantage.",
-                                                    ]
-                                                ),
-                                                html.Li(
-                                                    [
-                                                        html.Strong("Housing context: "),
-                                                        "Zillow_Home_Value_Index, RenterShare, SingleFamilyShare, and MultiUnitShare help describe affordability, tenure, and whether home charging may be more or less feasible.",
-                                                    ]
-                                                ),
-                                                html.Li(
-                                                    [
-                                                        html.Strong("Structural vulnerability: "),
-                                                        "Gini, PovertyShare, and ZeroVehicleShare capture inequality and socioeconomic disadvantage.",
-                                                    ]
-                                                ),
-                                                html.Li(
-                                                    [
-                                                        html.Strong("Environmental burden: "),
-                                                        "CES_Score_ZIP, PollutionBurden_ZIP, and Traffic_ZIP measure exposure to environmental disadvantage and pollution-related burden.",
-                                                    ]
-                                                ),
-                                                html.Li(
-                                                    [
-                                                        html.Strong("Charging infrastructure: "),
-                                                        "Num_Stations, Total_Ports, L2_Ports, and DC_Fast_Ports capture the availability and type of public EV charging access.",
-                                                    ]
-                                                ),
+                                                html.Li([html.Strong("Target: "), "EV_perc — central variable throughout EDA and modeling."]),
+                                                html.Li([html.Strong("Socioeconomic: "), "Median_Household_Income and BachOrHigher_perc."]),
+                                                html.Li([html.Strong("Housing: "), "Zillow_Home_Value_Index, RenterShare, SingleFamilyShare, MultiUnitShare."]),
+                                                html.Li([html.Strong("Vulnerability: "), "Gini, PovertyShare, ZeroVehicleShare."]),
+                                                html.Li([html.Strong("Environment: "), "CES_Score_ZIP, PollutionBurden_ZIP, Traffic_ZIP."]),
+                                                html.Li([html.Strong("Infrastructure: "), "Num_Stations, Total_Ports, L2_Ports, DC_Fast_Ports."]),
                                             ],
                                         ),
                                     ],
@@ -267,224 +265,171 @@ layout = html.Div(
                     ],
                 ),
 
-                section_card(
-                    "3. Data Overview & Quality",
-                    [
+                # 3. DATA QUALITY
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("3. Data Overview & Quality", className="section-title"),
                         html.P(
-                            "The dataset captures ZIP-level differences in EV adoption across California, combining socioeconomic, environmental, and infrastructure factors."
+                            "The dataset captures ZIP-level differences across California, combining socioeconomic, environmental, and infrastructure factors.",
+                            className="section-body",
                         ),
-
                         html.Div(
                             [
-                                html.B("Feature Categories:"),
-                                html.Ul(
+                                quality_category("Feature Categories", [
+                                    "Income & Wealth: income, home values, inequality, poverty",
+                                    "Education: bachelor's degree attainment",
+                                    "Demographics: race and ethnicity composition",
+                                    "Housing: renter share, housing type, vehicle access",
+                                    "Environmental Burden: CES score, pollution, traffic",
+                                    "Infrastructure: charging stations and ports",
+                                ]),
+                                quality_category("Data Quality Checks", [
+                                    "Most variables have low missingness; environmental metrics slightly higher.",
+                                    "No duplicate ZIP-level records after merging.",
+                                    "Share-based variables checked for valid ranges.",
+                                    "EV adoption values cross-checked against registered counts.",
+                                ]),
+                                html.Div(
                                     [
-                                        html.Li("Income & Wealth: income, home values, inequality, poverty"),
-                                        html.Li("Education: bachelor's degree attainment"),
-                                        html.Li("Demographics: race and ethnicity composition"),
-                                        html.Li("Housing: renter share, housing type, vehicle access"),
-                                        html.Li("Environmental Burden: CES score, pollution, traffic"),
-                                        html.Li("Infrastructure: charging stations and ports"),
-                                    ]
+                                        html.Span("Derived Features", className="qc-label"),
+                                        html.Div(
+                                            [
+                                                html.Span("HomeownerShare", className="column-chip chip-orange", title="Computed from renter share — captures the proportion of homeowners in a ZIP code."),
+                                                html.Span("ChargersPer1000EV", className="column-chip chip-teal", title="Number of chargers per 1,000 EV registrations — measures infrastructure relative to EV demand."),
+                                                html.Span("PortsPer10kPeople", className="column-chip chip-blue", title="Charging ports per 10,000 residents — normalizes infrastructure availability by population."),
+                                            ],
+                                            className="chip-group-row",
+                                            style={"marginTop": "8px"},
+                                        ),
+                                    ],
+                                    className="qc-card",
                                 ),
                             ],
-                            style={"marginBottom": "10px"},
-                        ),
-
-                        html.Div(
-                            [
-                                html.B("Data Quality Checks:"),
-                                html.Ul(
-                                    [
-                                        html.Li("Most variables have low missingness, though environmental metrics have moderately higher missing values."),
-                                        html.Li("No duplicate ZIP-level records were identified after merging."),
-                                        html.Li("Share-based variables were checked for valid ranges."),
-                                        html.Li("EV adoption values were cross-checked against registered EV counts and total vehicles."),
-                                    ]
-                                ),
-                            ],
-                            style={"marginBottom": "10px"},
-                        ),
-
-                        html.Div(
-                            [
-                                html.B("Derived Features:"),
-                                html.Ul(
-                                    [
-                                        html.Li("HomeownerShare computed from renter share"),
-                                        html.Li("ChargersPer1000EV to measure infrastructure relative to EV demand"),
-                                        html.Li("PortsPer10kPeople to normalize charging infrastructure by population"),
-                                    ]
-                                ),
-                            ],
-                            style={"marginBottom": "10px"},
-                        ),
-
-                        html.Div(
-                            [
-                                html.B("Key Takeaways:"),
-                                html.Ul(
-                                    [
-                                        html.Li("Median EV adoption remains low across most ZIP codes."),
-                                        html.Li("Income varies widely across California ZIP codes, indicating strong inequality."),
-                                        html.Li("A substantial share of ZIP codes have no charging stations after merging."),
-                                        html.Li("Infrastructure and environmental burden vary significantly across regions."),
-                                    ]
-                                ),
-                            ]
+                            className="qc-grid",
                         ),
                     ],
                 ),
 
-                section_card(
-                    "4. Visualization Analysis",
-                    [
+                # 4. VISUALIZATIONS
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("4. Visualization Analysis", className="section-title"),
                         html.P(
-                            "The visual analysis below focuses on the main patterns that shaped the rest of the project: how EV adoption varies across ZIP codes, how strongly it differs by income, how it changes under environmental burden, and whether charging access is distributed evenly."
+                            "The visual analysis focuses on the main patterns that shaped the rest of the project: how EV adoption varies across ZIP codes, "
+                            "how strongly it differs by income, how it changes under environmental burden, and whether charging access is distributed evenly.",
+                            className="section-body",
+                            style={"marginBottom": "28px"},
                         ),
 
-                        viz_block(
+                        # 4.1 single wide
+                        viz_wide(
                             "4.1 Distribution of EV Adoption Across ZIP Codes",
                             "ev_distribution.png",
                             "Figure 1. Distribution of EV adoption across California ZIP codes.",
-                            "EV adoption is highly right-skewed across ZIP codes, with most communities showing relatively low adoption rates and a smaller group reaching much higher levels. This indicates that EV adoption is not evenly shared across California and motivates deeper analysis into which structural factors help explain these disparities."
+                            "EV adoption is highly right-skewed — most communities show low adoption rates with a smaller group reaching much higher levels. This uneven distribution motivates deeper analysis into which structural factors explain these disparities.",
                         ),
 
+                        html.Hr(className="section-divider"),
+
+                        # 4.2 paired
+                        html.H3("4.2 Income and EV Adoption", className="subsection-title"),
+                        html.P("Income was one of the clearest early signals — the next two plots examine how adoption changes across income-based community groups.", style={"marginBottom": "16px", "color": "var(--muted)", "fontSize": "14px"}),
                         html.Div(
-                            className="card subsection-card",
+                            className="two-column-grid",
                             children=[
-                                html.H2("4.2 Income and EV Adoption", className="section-title"),
-                                html.P(
-                                    "Income was one of the clearest early signals in the data, so the next two plots examine how EV adoption changes across income-based community groups."
-                                ),
-                                html.Div(
-                                    className="two-column-grid",
-                                    children=[
-                                        html.Div(
-                                            className="half-card",
-                                            children=[
-                                                viz_block(
-                                                    "Mean EV Adoption by Income Quintile",
-                                                    "ev_incomequintile.png",
-                                                    "Figure 2. Average EV adoption rate across household income quintiles.",
-                                                    "Average EV adoption rises steadily across income quintiles, showing a strong positive relationship between household income and EV uptake. This suggests that higher-income communities are better positioned to adopt EVs, likely due to differences in affordability, home charging access, and overall resource availability."
-                                                )
-                                            ],
-                                        ),
-                                        html.Div(
-                                            className="half-card",
-                                            children=[
-                                                viz_block(
-                                                    "EV Adoption Distribution by Income Quintile",
-                                                    "ev_incomeboxplot.png",
-                                                    "Figure 3. Distribution of EV adoption within each income quintile.",
-                                                    "The box plot shows that the income relationship is not only visible in averages but also throughout the full distribution. Higher-income groups tend to have consistently greater EV adoption, while lower-income communities remain concentrated at much lower levels."
-                                                )
-                                            ],
-                                        ),
-                                    ],
-                                ),
+                                html.Div(className="half-card", children=[
+                                    viz_paired(
+                                        "Mean EV Adoption by Income Quintile",
+                                        "ev_incomequintile.png",
+                                        "Figure 2. Average EV adoption rate across household income quintiles.",
+                                        "Average EV adoption rises steadily across income quintiles, showing a strong positive relationship between household income and EV uptake.",
+                                    ),
+                                ]),
+                                html.Div(className="half-card", children=[
+                                    viz_paired(
+                                        "EV Adoption Distribution by Income Quintile",
+                                        "ev_incomeboxplot.png",
+                                        "Figure 3. Distribution of EV adoption within each income quintile.",
+                                        "Higher-income groups have consistently greater EV adoption, while lower-income communities remain concentrated at much lower levels.",
+                                    ),
+                                ]),
                             ],
                         ),
 
+                        html.Hr(className="section-divider"),
+
+                        # 4.3 paired
+                        html.H3("4.3 Environmental Burden and EV Adoption", className="subsection-title"),
+                        html.P("Do environmentally burdened communities also miss out on EV adoption benefits?", style={"marginBottom": "16px", "color": "var(--muted)", "fontSize": "14px"}),
                         html.Div(
-                            className="card subsection-card",
+                            className="two-column-grid",
                             children=[
-                                html.H2("4.3 Environmental Burden and EV Adoption", className="section-title"),
-                                html.P(
-                                    "To complement the income story, the next visuals examine whether environmentally burdened communities are also less likely to benefit from EV adoption."
-                                ),
-                                html.Div(
-                                    className="two-column-grid",
-                                    children=[
-                                        html.Div(
-                                            className="half-card",
-                                            children=[
-                                                viz_block(
-                                                    "CalEnviroScreen Burden vs. EV Adoption",
-                                                    "ev_burden_scatter.png",
-                                                    "Figure 4. Relationship between CalEnviroScreen burden score and EV adoption.",
-                                                    "The scatterplot suggests a weak but consistent negative relationship between environmental burden and EV adoption. ZIP codes facing higher combined environmental and socioeconomic stress tend to report lower EV adoption, suggesting that communities already exposed to greater disadvantage are also less likely to access clean transportation benefits."
-                                                )
-                                            ],
-                                        ),
-                                        html.Div(
-                                            className="half-card",
-                                            children=[
-                                                viz_block(
-                                                    "EV Adoption by Environmental Burden Quartile",
-                                                    "ev_calenviro_boxplot.png",
-                                                    "Figure 5. EV adoption across CalEnviroScreen burden quartiles.",
-                                                    "Grouping communities into burden quartiles makes the disparity clearer: ZIP codes with the greatest environmental burden tend to have lower EV adoption distributions overall. This reinforces the idea that EV transition benefits are not reaching all communities equally."
-                                                )
-                                            ],
-                                        ),
-                                    ],
-                                ),
+                                html.Div(className="half-card", children=[
+                                    viz_paired(
+                                        "CalEnviroScreen Burden vs. EV Adoption",
+                                        "ev_burden_scatter.png",
+                                        "Figure 4. CalEnviroScreen burden score vs. EV adoption.",
+                                        "A weak but consistent negative relationship — ZIP codes with higher combined environmental stress tend to report lower EV adoption.",
+                                    ),
+                                ]),
+                                html.Div(className="half-card", children=[
+                                    viz_paired(
+                                        "EV Adoption by Environmental Burden Quartile",
+                                        "ev_calenviro_boxplot.png",
+                                        "Figure 5. EV adoption across CalEnviroScreen burden quartiles.",
+                                        "ZIP codes with the greatest environmental burden have lower EV adoption distributions overall — EV transition benefits are not reaching all communities equally.",
+                                    ),
+                                ]),
                             ],
                         ),
 
-                        html.Div(
-                            className="card subsection-card",
-                            children=[
-                                html.H2("4.4 Charging Infrastructure Access", className="section-title"),
-                                html.P(
-                                    "Charging access is an important part of EV feasibility, so infrastructure was examined alongside socioeconomic differences."
-                                ),
-                                viz_block(
-                                    "Chargers per 1,000 EV Registrations by Income Quintile",
-                                    "ev_chargers1000_quintile.png",
-                                    "Figure 6. Charging availability relative to EV registrations across income quintiles.",
-                                    "Charging access appears uneven and highly variable across income groups, with no clear equalizing pattern. In some cases, higher-income areas show stronger availability, but the relationship is not consistent."
-                                ),
-                            ],
+                        html.Hr(className="section-divider"),
+
+                        # 4.4 single wide
+                        viz_wide(
+                            "4.4 Charging Infrastructure Access by Income",
+                            "ev_chargers1000_quintile.png",
+                            "Figure 6. Charging availability relative to EV registrations across income quintiles.",
+                            "Charging access is uneven and highly variable across income groups with no clear equalizing pattern. In some cases, higher-income areas show stronger availability, but the relationship is not consistent — raising questions about whether infrastructure follows demand or reinforces existing disparities.",
                         ),
 
-                        html.Div(
-                            className="card subsection-card",
-                            children=[
-                                html.H2("4.5 Correlation Overview", className="section-title"),
-                                html.P(
-                                    "The final visualization summarizes how EV adoption moves with several major variables at once."
-                                ),
-                                viz_block(
-                                    "Correlation Between EV Adoption and Key Variables",
-                                    "ev_corr.png",
-                                    "Figure 7. Correlation heatmap for EV adoption and key explanatory variables.",
-                                    " The correlation results highlight several clear drivers of EV adoption. EV adoption is strongly positively correlated with education (0.87), home values (0.83), and median household income (0.81), indicating that higher socioeconomic status is closely associated with greater EV adoption across ZIP codes. In contrast, EV adoption is moderately negatively correlated with environmental burden (CES score: -0.49) and poverty (-0.41), suggesting that more disadvantaged communities are less likely to adopt EVs. Charging infrastructure variables such as total ports (0.33) and number of stations (0.31) show moderate positive relationships with EV adoption, indicating that infrastructure availability supports adoption but is not the primary driver of disparities. Other variables, such as inequality (Gini: 0.29), show weaker relationships, while measures like pollution burden (-0.11) and chargers per 1,000 EVs (-0.08) have relatively small correlations. Overall, these results suggest that EV adoption is most strongly shaped by socioeconomic advantage, with infrastructure playing a secondary but supportive role."
-                                ),
-                                
-                            ],
+                        html.Hr(className="section-divider"),
+
+                        # 4.5 single wide
+                        viz_wide(
+                            "4.5 Correlation Between EV Adoption and Key Variables",
+                            "ev_corr.png",
+                            "Figure 7. Correlation heatmap for EV adoption and key explanatory variables.",
+                            "EV adoption is most strongly correlated with education (0.87), home values (0.83), and income (0.81). It is negatively correlated with environmental burden (CES: -0.49) and poverty (-0.41). Infrastructure variables show moderate positive relationships (Total Ports: 0.33), indicating that access supports adoption but is not the primary driver of disparities.",
                         ),
                     ],
                 ),
 
-                                section_card(
-                    "5. Preliminary Insights",
-                    [
+                # 5. INSIGHTS
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("5. Preliminary Insights", className="section-title"),
                         html.P(
-                            "The exploratory analysis reveals several early patterns that guide the next stage of modeling and interpretation."
-                        ),
-                        html.Ul(
-                            [
-                                html.Li(
-                                    "EV adoption is most strongly associated with socioeconomic advantage. Education, home values, and median household income show the strongest positive relationships with EV adoption."
-                                ),
-                                html.Li(
-                                    "Communities with greater structural disadvantage tend to have lower EV adoption. Poverty and higher CalEnviroScreen burden are both negatively associated with EV adoption across ZIP codes."
-                                ),
-                                html.Li(
-                                    "While charging infrastructure is positively associated with EV adoption, this relationship is partly expected, as infrastructure is often built in response to existing demand. This raises a deeper question of whether structural socioeconomic and environmental factors influence where infrastructure is deployed in the first place."
-                                ),
-                                html.Li(
-                                    "The overall pattern suggests that EV adoption is not distributed evenly across California and is shaped by broader differences in wealth, education, and community burden."
-                                ),
-                            ],
-                            className="insight-bullet-list",
+                            "The exploratory analysis reveals several early patterns that guide the next stage of modeling.",
+                            className="section-body",
+                            style={"marginBottom": "18px"},
                         ),
                         html.Div(
-                            "Based on these findings, the next stage of analysis will test whether income, education, environmental burden, and charging infrastructure remain important predictors of EV adoption in the regression models.",
+                            [
+                                insight_card(1, "EV adoption is most strongly associated with socioeconomic advantage. Education, home values, and median household income show the strongest positive relationships."),
+                                insight_card(2, "Communities with greater structural disadvantage have lower EV adoption. Poverty and higher CalEnviroScreen burden are both negatively associated."),
+                                insight_card(3, "Charging infrastructure is positively associated with adoption, but this is partly expected — infrastructure tends to follow demand, raising questions about whether it also reinforces disparities."),
+                                insight_card(4, "EV adoption is not evenly distributed across California and is shaped by broader differences in wealth, education, and community burden."),
+                            ],
+                            className="ins-grid",
+                        ),
+                        html.Div(
+                            "Based on these findings, the next stage will test whether income, education, environmental burden, and charging infrastructure remain important predictors in regression models.",
                             className="insight-note",
+                            style={"marginTop": "18px"},
                         ),
                     ],
                 ),

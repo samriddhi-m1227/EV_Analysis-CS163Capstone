@@ -1,7 +1,7 @@
 from dash import Dash, html, dcc, Input, Output, State
 import dash
 
-app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True)
+app = Dash(__name__, use_pages=True, external_stylesheets=['/assets/style.css?v=3'])
 server = app.server
 
 navbar = html.Div(

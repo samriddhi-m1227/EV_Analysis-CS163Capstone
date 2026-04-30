@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc
+from dash import html, dcc, Input, Output, State, ALL, ctx
 
 dash.register_page(__name__, path="/ml")
 
@@ -111,7 +111,7 @@ MODELS = [
         "image_caption": None,
         "importance_data": MODEL4_IMPORTANCE,
         "importance_title": "Infrastructure Desert Feature Importance",
-        "importance_caption": "Infrastructure deserts are influenced by multiple factors, with no single dominant predictor, suggesting charging access is shaped by broader planning and investment decisions.",
+        "importance_caption": "Infrastructure deserts are influenced by multiple factors, with no single dominant predictor.",
     },
     {
         "number": "05",
@@ -129,9 +129,9 @@ MODELS = [
             "Gasoline_Hybrid_share carries a negative coefficient",
             "Traditional hybrids do not signal the same readiness pathway",
         ],
-        "takeaway": "Plug-in hybrid adoption is strongly associated with higher EV adoption, indicating that PHEVs may reflect community readiness for full electrification. Traditional gasoline hybrids do not show the same relationship.",
+        "takeaway": "Plug-in hybrid adoption is strongly associated with higher EV adoption, indicating that PHEVs may reflect community readiness for full electrification.",
         "image": "model5_phev_vs_ev.png",
-        "image_caption": "ZIP codes with higher plug-in hybrid adoption also tend to have higher EV adoption, supporting the idea of a transition pathway toward full electric vehicles.",
+        "image_caption": "ZIP codes with higher plug-in hybrid adoption also tend to have higher EV adoption.",
     },
     {
         "number": "06",
@@ -154,17 +154,6 @@ MODELS = [
     },
 ]
 
-
-def stat_chip(value, label):
-    return html.Div(
-        className="ml-stat-item",
-        children=[
-            html.Span(value, className="ml-stat-value"),
-            html.Span(label, className="ml-stat-label"),
-        ],
-    )
-
-
 FEATURE_LABELS = {
     "BachOrHigher_perc":      "Education (Bach+)",
     "Zillow_Home_Value_Index": "Home Value Index",
@@ -178,6 +167,37 @@ FEATURE_LABELS = {
     "EV_perc":                 "EV Adoption Rate",
 }
 
+MODEL_TYPE_COLORS = {
+    "Ridge · Random Forest":  "mlbadge-blue",
+    "Ridge w/ Interaction":   "mlbadge-purple",
+    "Logistic · RF Classifier": "mlbadge-red",
+    "Ridge Regression":       "mlbadge-teal",
+}
+
+
+def banner_chip(value, label):
+    return html.Div(
+        [html.Span(value, className="hero-stat-value"), html.Span(label, className="hero-stat-label")],
+        className="hero-stat-chip",
+    )
+
+
+def stat_chip(value, label):
+    return html.Div(
+        className="ml-stat-item",
+        children=[
+            html.Span(value, className="ml-stat-value"),
+            html.Span(label, className="ml-stat-label"),
+        ],
+    )
+
+
+def ml_insight(number, text):
+    return html.Div(
+        [html.Span(str(number), className="ins-number"), html.P(text, className="ins-text")],
+        className="ins-card",
+    )
+
 
 def coeff_table(data):
     rows = []
@@ -186,11 +206,9 @@ def coeff_table(data):
         is_neg  = row["coefficient"] < 0
         label   = FEATURE_LABELS.get(row["feature"], row["feature"])
         val     = row["coefficient"]
-
         feature_cls = "ml-ct-feature ml-ct-bold" if is_top3 else "ml-ct-feature"
         coeff_cls   = "ml-ct-val ml-ct-neg" if is_neg else ("ml-ct-val ml-ct-bold ml-ct-pos" if is_top3 else "ml-ct-val")
         row_cls     = "ml-ct-row-hi" if is_top3 else ""
-
         rows.append(html.Tr([
             html.Td(label, className=feature_cls),
             html.Td(f"{val:.3f}", className=coeff_cls),
@@ -200,20 +218,14 @@ def coeff_table(data):
         className="ml-coeff-card",
         children=[
             html.P("Ridge Regression Coefficients", className="ml-coeff-title"),
-            html.Table(
-                className="ml-ct",
-                children=[
-                    html.Thead(html.Tr([
-                        html.Th("Feature", className="ml-ct-th"),
-                        html.Th("Coeff.", className="ml-ct-th ml-ct-th-r"),
-                    ])),
-                    html.Tbody(rows),
-                ],
-            ),
-            html.P(
-                "Education, home value, and income are the strongest drivers of EV adoption.",
-                className="ml-coeff-caption",
-            ),
+            html.Table(className="ml-ct", children=[
+                html.Thead(html.Tr([
+                    html.Th("Feature", className="ml-ct-th"),
+                    html.Th("Coeff.", className="ml-ct-th ml-ct-th-r"),
+                ])),
+                html.Tbody(rows),
+            ]),
+            html.P("Education, home value, and income are the strongest drivers.", className="ml-coeff-caption"),
         ],
     )
 
@@ -221,31 +233,27 @@ def coeff_table(data):
 def importance_table(data, title, caption):
     rows = []
     for i, row in enumerate(data):
-        is_top3    = i < 3
+        is_top3 = i < 3
         feature_cls = "ml-ct-feature ml-ct-bold" if is_top3 else "ml-ct-feature"
-        val_cls     = "ml-ct-val ml-ct-pos ml-ct-bold" if is_top3 else "ml-ct-val"
-        row_cls     = "ml-ct-row-hi" if is_top3 else ""
-        label       = FEATURE_LABELS.get(row["feature"], row["feature"])
+        val_cls = "ml-ct-val ml-ct-pos ml-ct-bold" if is_top3 else "ml-ct-val"
+        row_cls = "ml-ct-row-hi" if is_top3 else ""
+        label = FEATURE_LABELS.get(row["feature"], row["feature"])
         rows.append(html.Tr([
             html.Td(label, className=feature_cls),
             html.Td(f"{row['importance']:.3f}", className=val_cls),
         ], className=row_cls))
 
     return html.Div(
-        className="ml-coeff-card",
-        style={"maxWidth": "620px", "margin": "24px auto 0 auto"},
+        className="ml-coeff-card ml-importance-card",
         children=[
             html.P(title, className="ml-coeff-title"),
-            html.Table(
-                className="ml-ct",
-                children=[
-                    html.Thead(html.Tr([
-                        html.Th("Feature", className="ml-ct-th"),
-                        html.Th("Importance", className="ml-ct-th ml-ct-th-r"),
-                    ])),
-                    html.Tbody(rows),
-                ],
-            ),
+            html.Table(className="ml-ct", children=[
+                html.Thead(html.Tr([
+                    html.Th("Feature", className="ml-ct-th"),
+                    html.Th("Importance", className="ml-ct-th ml-ct-th-r"),
+                ])),
+                html.Tbody(rows),
+            ]),
             html.P(caption, className="ml-coeff-caption"),
         ],
     )
@@ -254,100 +262,57 @@ def importance_table(data, title, caption):
 def tab_content(m):
     if m.get("image") and m.get("coeff_data"):
         viz = html.Div(
-            style={
-                "display": "flex",
-                "flexDirection": "row",
-                "gap": "24px",
-                "alignItems": "flex-start",
-                "marginTop": "24px",
-            },
+            className="ml-viz-side-row",
             children=[
-                html.Div(
-                    style={"flex": "3", "minWidth": "0"},
-                    children=[
-                        html.Img(
-                            src=f"/static/images/{m['image']}",
-                            className="ml-viz-image",
-                        ),
-                        html.P(m["image_caption"], className="viz-caption"),
-                    ],
-                ),
-                html.Div(
-                    style={"flex": "2", "minWidth": "0"},
-                    children=[coeff_table(m["coeff_data"])],
-                ),
+                html.Div(className="ml-viz-side-img", children=[
+                    html.Img(src=f"/static/images/{m['image']}", className="ml-viz-image"),
+                    html.P(m["image_caption"], className="viz-caption"),
+                ]),
+                html.Div(className="ml-viz-side-coeff", children=[coeff_table(m["coeff_data"])]),
             ],
         )
     elif m.get("image"):
         img_style = {"maxWidth": m["image_max_width"], "margin": "0 auto"} if m.get("image_max_width") else {}
-        viz = html.Div(
-            className="ml-viz-block",
-            children=[
-                html.Img(src=f"/static/images/{m['image']}", className="ml-viz-image", style=img_style),
-                html.P(m["image_caption"], className="viz-caption"),
-            ],
-        )
+        viz = html.Div(className="ml-viz-block", children=[
+            html.Img(src=f"/static/images/{m['image']}", className="ml-viz-image", style=img_style),
+            html.P(m["image_caption"], className="viz-caption"),
+        ])
     elif m.get("importance_data"):
         viz = importance_table(m["importance_data"], m["importance_title"], m["importance_caption"])
-    elif "image" in m:
-        viz = html.Div(
-            className="ml-viz-placeholder",
-            children=[
-                html.Span("📊 ", className="ml-viz-icon"),
-                html.Span(
-                    "Visualization coming soon — chart will appear here once exported.",
-                    className="ml-viz-label",
-                ),
-            ],
-        )
     else:
         viz = html.Div()
+
+    badge_color = MODEL_TYPE_COLORS.get(m["type"], "mlbadge-blue")
 
     return html.Div(
         className="ml-detail-panel",
         children=[
-            html.Div(
-                className="ml-model-header",
-                children=[
-                    html.Span(m["number"], className="ml-number-badge"),
-                    html.Div(
-                        className="ml-title-block",
-                        children=[
-                            html.H3(m["title"], className="ml-card-title"),
-                            html.P(f'"{m["question"]}"', className="ml-question"),
-                        ],
-                    ),
-                    html.Div(
-                        className="ml-badge-row",
-                        children=[
-                            html.Span(m["type"], className="ml-badge ml-badge-type"),
-                            html.Span(m["target"], className="ml-badge ml-badge-target"),
-                        ],
-                    ),
-                ],
-            ),
+            html.Div(className="ml-model-header", children=[
+                html.Span(m["number"], className="ml-number-badge"),
+                html.Div(className="ml-title-block", children=[
+                    html.H3(m["title"], className="ml-card-title"),
+                    html.P(f'"{m["question"]}"', className="ml-question"),
+                ]),
+                html.Div(className="ml-badge-row", children=[
+                    html.Span(m["type"], className=f"ml-badge ml-badge-type {badge_color}"),
+                    html.Span(m["target"], className="ml-badge ml-badge-target"),
+                ]),
+            ]),
 
             html.Hr(className="ml-divider"),
 
-            html.Div(
-                className="ml-body",
-                children=[
-                    html.Div([
-                        html.P(m["why"], className="page-text"),
-                        html.Ul(
-                            [html.Li(r) for r in m["results"]],
-                            className="ml-results-list",
-                        ),
+            html.Div(className="ml-body", children=[
+                html.Div([
+                    html.P(m["why"], className="page-text"),
+                    html.Ul([html.Li(r) for r in m["results"]], className="ml-results-list"),
+                ]),
+                html.Div([
+                    html.Div(className="ml-stat-grid", children=[
+                        stat_chip(s["value"], s["label"]) for s in m["metrics"]
                     ]),
-                    html.Div([
-                        html.Div(
-                            className="ml-stat-grid",
-                            children=[stat_chip(s["value"], s["label"]) for s in m["metrics"]],
-                        ),
-                        html.Div(m["takeaway"], className="insight-note"),
-                    ]),
-                ],
-            ),
+                    html.Div(m["takeaway"], className="insight-note"),
+                ]),
+            ]),
 
             viz,
         ],
@@ -366,83 +331,163 @@ def overview_table():
     return html.Table(
         className="ml-overview-table",
         children=[
-            html.Thead(
-                html.Tr([html.Th(h) for h in ["#", "Research Question", "Target", "Model Type", "Key Insight"]])
-            ),
-            html.Tbody([
-                html.Tr([html.Td(c) for c in row])
-                for row in rows
-            ]),
+            html.Thead(html.Tr([html.Th(h) for h in ["#", "Research Question", "Target", "Model Type", "Key Insight"]])),
+            html.Tbody([html.Tr([html.Td(c) for c in row]) for row in rows]),
         ],
     )
 
 
-layout = html.Div(
-    className="page-container",
-    children=[
-        html.H1(
-            "Modeling: Who Adopts, Who's Left Behind, and Why?",
-            className="page-header",
-        ),
-        html.P(
-            "Six models, each answering a distinct equity question. Select a model below to explore its design, "
-            "results, and takeaways.",
-            style={
-                "textAlign": "center",
-                "maxWidth": "780px",
-                "margin": "0 auto 32px auto",
-                "color": "var(--muted)",
-                "fontSize": "15px",
-                "lineHeight": "1.7",
-            },
-        ),
+def model_selector_card(m, active=False):
+    badge_color = MODEL_TYPE_COLORS.get(m["type"], "mlbadge-blue")
+    card_cls = "ml-sel-card ml-sel-card-active" if active else "ml-sel-card"
+    return html.Div(
+        [
+            html.Span(m["number"], className="ml-sel-num"),
+            html.Span(m["title"], className="ml-sel-title"),
+            html.Span(f'"{m["question"]}"', className="ml-sel-question"),
+            html.Span(m["type"], className=f"ml-sel-badge {badge_color}"),
+        ],
+        id={"type": "ml-model-btn", "index": m["number"]},
+        className=card_cls,
+        n_clicks=0,
+    )
 
-        html.Div(
-            className="card",
-            children=[
-                html.H2("Modeling Overview", className="subsection-title"),
-                html.P(
-                    "Each model is designed to answer a specific question about EV equity in California.",
-                    className="page-text",
-                    style={"marginBottom": "18px"},
-                ),
-                overview_table(),
-            ],
-        ),
 
-        dcc.Tabs(
-            id="ml-tabs",
-            value="01",
-            className="ml-tabs-container",
-            children=[
-                dcc.Tab(
-                    label=f"Model {i + 1}",
-                    value=m["number"],
-                    className="ml-tab",
-                    selected_className="ml-tab-selected",
-                    children=tab_content(m),
-                )
-                for i, m in enumerate(MODELS)
-            ],
-        ),
+layout = html.Div([
+    html.Div(
+        className="page-container",
+        children=[
 
-        html.Div(
-            className="card ml-summary-card",
-            children=[
-                html.H2("Key Takeaways", className="subsection-title"),
-                html.Ul(
-                    className="ml-results-list",
-                    children=[
-                        html.Li("EV adoption is highly structured and strongly driven by socioeconomic factors, with education emerging as the most consistent predictor across models."),
-                        html.Li("Infrastructure does influence EV adoption, but its impact is not equal — it has a stronger effect in higher-income communities, suggesting it may reinforce existing advantages."),
-                        html.Li("EV deserts are highly predictable and concentrated in disadvantaged areas, indicating clear disparities in adoption across communities."),
-                        html.Li("In contrast, infrastructure access is less structured and harder to predict, suggesting that charging availability is influenced by broader planning, policy, and investment decisions rather than demand alone."),
-                        html.Li("Adoption follows a differentiated pathway: plug-in hybrid (PHEV) adoption is strongly associated with EV adoption, while traditional gasoline hybrids do not show the same relationship."),
-                        html.Li("Even among high-income communities, EV adoption varies significantly, with infrastructure access, education, and housing constraints continuing to shape outcomes."),
-                        html.Li("Overall, EV adoption disparities cannot be explained by a single factor — they emerge from a combination of socioeconomic conditions, infrastructure access, and behavioral readiness."),
-                    ],
-                ),
-            ],
-        ),
-    ],
+            # BANNER
+            html.Div(
+                className="page-banner",
+                children=[
+                    html.Div(className="hero-dot-grid"),
+                    html.H1("ML Modeling", className="page-banner-title"),
+                    html.P(
+                        "Six models, each answering a distinct equity question about EV adoption across California.",
+                        className="page-banner-sub",
+                    ),
+                    html.Div(
+                        [
+                            banner_chip("6", "Models"),
+                            banner_chip("3", "Algorithm Types"),
+                            banner_chip("0.943", "Best R²"),
+                            banner_chip("0.974", "Best AUC"),
+                        ],
+                        className="page-banner-stats",
+                    ),
+                ],
+            ),
+
+            # OVERVIEW TABLE
+            html.Div(
+                className="card",
+                children=[
+                    html.H2("Modeling Overview", className="section-title"),
+                    html.P("Each model is designed to answer a specific question about EV equity in California.", className="section-body", style={"marginBottom": "18px"}),
+                    overview_table(),
+                ],
+            ),
+
+            # MODEL SELECTOR
+            html.Div(
+                className="card",
+                children=[
+                    html.H2("Explore a Model", className="section-title"),
+                    html.P("Click any card to explore its design, results, and takeaways.", className="section-body", style={"marginBottom": "20px"}),
+                    html.Div(
+                        id="ml-selector-grid",
+                        className="ml-selector-grid",
+                        children=[model_selector_card(m, active=(m["number"] == "01")) for m in MODELS],
+                    ),
+                ],
+            ),
+
+            # DETAIL PANEL
+            dcc.Store(id="ml-active-model", data="01"),
+            html.Div(id="ml-model-detail", children=tab_content(MODELS[0])),
+
+            # WHY THESE MODELS
+            html.Div(
+                className="card",
+                children=[
+                    html.H2("Why These Models?", className="section-title"),
+                    html.P(
+                        "Algorithm choices were driven by the structure of the data and the type of question each model answers.",
+                        className="section-body",
+                        style={"marginBottom": "20px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Div([
+                                html.Span("Ridge Regression", className="why-algo-name mlbadge-blue"),
+                                html.P("Chosen for regression tasks because the socioeconomic predictors (income, education, home value) are highly correlated with each other. Ridge penalizes large coefficients and handles multicollinearity better than ordinary OLS, producing more stable and interpretable estimates.", className="why-algo-desc"),
+                            ], className="why-algo-card"),
+                            html.Div([
+                                html.Span("Random Forest", className="why-algo-name mlbadge-teal"),
+                                html.P("Paired alongside Ridge to capture non-linear relationships and feature interactions that a linear model may miss. Comparing RF and Ridge results helps confirm whether the relationships are fundamentally linear or more complex. Feature importances also provide a model-agnostic view of which variables matter most.", className="why-algo-desc"),
+                            ], className="why-algo-card"),
+                            html.Div([
+                                html.Span("Logistic Regression", className="why-algo-name mlbadge-purple"),
+                                html.P("Used for binary classification tasks (EV desert, infrastructure desert) because it produces interpretable coefficients and probabilities. Its output is easy to explain to a non-technical audience, and it serves as a strong linear baseline before comparing against the Random Forest classifier.", className="why-algo-desc"),
+                            ], className="why-algo-card"),
+                            html.Div([
+                                html.Span("Interaction Terms", className="why-algo-name mlbadge-red"),
+                                html.P("Added in Model 02 to test whether the effect of charging infrastructure on EV adoption depends on income level. A standard Ridge model assumes the infrastructure effect is the same for all communities — the interaction term relaxes that assumption and lets the data tell us whether the benefit is unequal.", className="why-algo-desc"),
+                            ], className="why-algo-card"),
+                        ],
+                        className="why-algo-grid",
+                    ),
+                ],
+            ),
+
+            # KEY TAKEAWAYS
+            html.Div(
+                className="card ml-summary-card",
+                children=[
+                    html.H2("Key Takeaways", className="section-title"),
+                    html.Div(
+                        [
+                            ml_insight(1, "EV adoption is highly structured and strongly driven by socioeconomic factors, with education emerging as the most consistent predictor across models."),
+                            ml_insight(2, "Infrastructure does influence EV adoption, but its impact is not equal — it has a stronger effect in higher-income communities, suggesting it may reinforce existing advantages."),
+                            ml_insight(3, "EV deserts are highly predictable and concentrated in disadvantaged areas, indicating clear disparities in adoption across communities."),
+                            ml_insight(4, "Infrastructure access is less structured and harder to predict — charging availability is influenced by broader planning, policy, and investment decisions rather than demand alone."),
+                            ml_insight(5, "Plug-in hybrid (PHEV) adoption is strongly associated with EV adoption, while traditional gasoline hybrids do not show the same relationship."),
+                            ml_insight(6, "Even among high-income communities, EV adoption varies significantly, with infrastructure access, education, and housing constraints continuing to shape outcomes."),
+                            ml_insight(7, "Overall, EV adoption disparities cannot be explained by a single factor — they emerge from a combination of socioeconomic conditions, infrastructure access, and behavioral readiness."),
+                        ],
+                        className="ins-grid",
+                    ),
+                ],
+            ),
+        ],
+    )
+])
+
+
+@dash.callback(
+    Output("ml-model-detail", "children"),
+    Output("ml-active-model", "data"),
+    Input({"type": "ml-model-btn", "index": ALL}, "n_clicks"),
+    State("ml-active-model", "data"),
+    prevent_initial_call=True,
 )
+def update_model(all_clicks, current_active):
+    triggered = ctx.triggered_id
+    if not triggered:
+        return tab_content(MODELS[0]), "01"
+    selected_num = triggered["index"]
+    model = next(m for m in MODELS if m["number"] == selected_num)
+    return tab_content(model), selected_num
+
+
+@dash.callback(
+    Output({"type": "ml-model-btn", "index": ALL}, "className"),
+    Input("ml-active-model", "data"),
+)
+def update_card_styles(active_num):
+    return [
+        "ml-sel-card ml-sel-card-active" if m["number"] == active_num else "ml-sel-card"
+        for m in MODELS
+    ]
