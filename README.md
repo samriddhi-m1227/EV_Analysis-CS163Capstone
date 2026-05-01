@@ -4,6 +4,8 @@
 
 **Live site:** [https://sp26-project-491005.wm.r.appspot.com](https://sp26-project-491005.wm.r.appspot.com)
 
+![Dashboard Preview](docs/preview.png)
+
 ---
 
 ## Overview
