@@ -2,7 +2,7 @@
 
 **CS 163 Capstone Project · San Jose State University · Spring 2026**
 
-**Live site:** [https://sp26-project-491005.wm.r.appspot.com](https://sp26-project-491005.wm.r.appspot.com)
+Explore the full interactive dashboard → [live website](https://sp26-project-491005.wm.r.appspot.com)
 
 ![Dashboard Preview](docs/preview.png)
 
@@ -38,7 +38,7 @@ This project provides value to multiple audiences. Policymakers and planners can
 
 ---
 
-## Tech Stack
+## ⚙️ Tech Stack
 
 | Layer | Tools |
 |---|---|
@@ -52,16 +52,16 @@ This project provides value to multiple audiences. Policymakers and planners can
 
 ---
 
-## Data Sources
+## 📦 Data Sources
 
 All datasets are publicly available and integrated at the ZIP code level.
 
 | Source | What it provides | Geographic level |
 |---|---|---|
-| **CalMatters EV Dataset** | ZIP-level EV registration data from the California DMV, including vehicle counts by fuel type, EV adoption rate, income, race/ethnicity, educational attainment, and Zillow Home Value Index | ZIP code |
-| **American Community Survey (ACS) 5-Year Estimates** | Socioeconomic and housing variables: Gini index, housing tenure, housing structure type, poverty status, vehicle availability — retrieved via Census API | ZCTA |
-| **CalEnviroScreen 4.0** | Environmental burden indicators (CES composite score, pollution burden, traffic exposure) developed by California's OEHHA, identifying communities disproportionately burdened by pollution | Census tract |
-| **NREL Alternative Fuel Stations API** | Public EV charging station locations, port counts, Level 2 and DC Fast infrastructure — filtered to operational California stations as of end of 2021 | Point location → ZIP |
+| [**CalMatters EV Dataset**](https://calmatters.org/environment/2023/03/california-electric-cars-demographics/) | ZIP-level EV registration data from the California DMV, including vehicle counts by fuel type, EV adoption rate, income, race/ethnicity, educational attainment, and Zillow Home Value Index | ZIP code |
+| [**American Community Survey (ACS) 5-Year Estimates**](https://www.census.gov/data/developers/data-sets/acs-5year.html) | Socioeconomic and housing variables: Gini index, housing tenure, housing structure type, poverty status, vehicle availability — retrieved via Census API | ZCTA |
+| [**CalEnviroScreen 4.0**](https://oehha.ca.gov/calenviroscreen) | Environmental burden indicators (CES composite score, pollution burden, traffic exposure) developed by California's OEHHA, identifying communities disproportionately burdened by pollution | Census tract |
+| [**NREL Alternative Fuel Stations API**](https://developer.nrel.gov/docs/transportation/alt-fuel-stations-v1/) | Public EV charging station locations, port counts, Level 2 and DC Fast infrastructure — filtered to operational California stations as of end of 2021 | Point location → ZIP |
 
 **Citations:**
 
@@ -75,7 +75,7 @@ National Renewable Energy Laboratory. *Alternative Fuel Stations API*. developer
 
 ---
 
-## Data Pipeline
+## 🔄 Data Pipeline
 
 Four sources were acquired, cleaned, and merged into a single ZIP-level analytical table.
 
@@ -95,7 +95,7 @@ Key decisions:
 
 ---
 
-## Modeling
+## 🤖 Modeling
 
 Six machine learning models were developed to answer distinct questions about EV adoption. Full model details, feature importance charts, and coefficient plots are in the [ML section of the website](https://sp26-project-491005.wm.r.appspot.com/ml).
 
@@ -110,7 +110,7 @@ Six machine learning models were developed to answer distinct questions about EV
 
 ---
 
-## Key Findings
+## 💡 Key Findings
 
 1. **Education is the strongest predictor.** Educational attainment has a stronger association with EV adoption than income — consistent across every model we ran.
 2. **Socioeconomic advantage structures adoption.** Home value and household income follow closely. EV adoption tracks the geography of economic and educational privilege.
@@ -123,7 +123,7 @@ Six machine learning models were developed to answer distinct questions about EV
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 EV_Analysis-CS163Capstone/
@@ -171,7 +171,7 @@ python app.py
 
 ---
 
-## Authors
+## 👩‍💻 Authors
 
 ### Samriddhi Matharu
 B.S. Data Science, San Jose State University ('26)
