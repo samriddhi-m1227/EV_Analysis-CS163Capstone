@@ -174,6 +174,8 @@ python app.py
 ## 👩‍💻 Authors
 
 ### Samriddhi Matharu
+<img src="appengine/static/images/sam.png" alt="Samriddhi Matharu" width="120" style="border-radius:50%"/>
+
 B.S. Data Science, San Jose State University ('26)
 
 Samriddhi has experience across data, software, and product roles and holds leadership positions in technical consulting on campus. She is passionate about responsible computing and using data to surface equity patterns that aggregate statistics miss. On this project, she led the data pipeline, exploratory analysis, machine learning modeling, and end-to-end web application development.
