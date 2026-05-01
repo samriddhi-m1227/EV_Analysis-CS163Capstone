@@ -179,7 +179,7 @@ Samriddhi has experience across data, software, and product roles and holds lead
 ### Bhavya Vatsavayi
 B.S. Data Science, San Jose State University
 
-Bhavya has a strong background in machine learning and statistical modeling. She led the regression and ML modeling components of this project and contributed to the analytical framing of the research questions. She is passionate about applying rigorous quantitative methods to problems with real-world social implications.
+[fill in here]
 
 ---
 
