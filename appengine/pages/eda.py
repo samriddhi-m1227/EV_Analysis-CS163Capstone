@@ -1,13 +1,28 @@
 import os
+import io
 import pandas as pd
 import dash
 from dash import html, dash_table
 
 dash.register_page(__name__, path="/eda")
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "data", "final.csv")
-df = pd.read_csv(DATA_PATH)
+GCS_BUCKET = "ev-analysis-data-cs163"
+GCS_BLOB   = "final.csv"
+
+def load_data():
+    try:
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.bucket(GCS_BUCKET)
+        blob = bucket.blob(GCS_BLOB)
+        data = blob.download_as_bytes()
+        return pd.read_csv(io.BytesIO(data))
+    except Exception:
+        # local fallback for dev
+        base = os.path.dirname(os.path.dirname(__file__))
+        return pd.read_csv(os.path.join(base, "data", "final.csv"))
+
+df = load_data()
 
 COLUMN_DEFINITIONS = {
     "ZIP": "ZIP code identifier for each observation.",

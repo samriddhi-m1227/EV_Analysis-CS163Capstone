@@ -101,6 +101,47 @@ layout = html.Div(
                     ],
                 ),
 
+                # 0. CONTEXT CARD
+                html.Div(
+                    className="card fd-context-row",
+                    children=[
+                        html.Div(
+                            style={"flexShrink": "0"},
+                            children=[
+                                html.Img(
+                                    src="/assets/images/forecast.png",
+                                    className="fd-forecast-img",
+                                ),
+                                html.P(
+                                    [
+                                        "Source: ",
+                                        html.A(
+                                            "Exploding Topics, 2024",
+                                            href="https://explodingtopics.com/blog/electric-vehicles-stats",
+                                            target="_blank",
+                                        ),
+                                    ],
+                                    className="fd-forecast-source",
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className="fd-context-text",
+                            children=[
+                                html.H2("Why This Matters Now", className="section-title"),
+                                html.P(
+                                    "EV adoption in California is growing fast — projected to reach 3 million vehicles by 2028. But aggregate growth figures obscure a sharper question: who is actually participating in that growth, and who is being left behind?",
+                                    className="section-body",
+                                ),
+                                html.P(
+                                    "As adoption scales, the communities still on the outside of the transition face compounding disadvantages — less exposure to the technology, fewer infrastructure investments, and weaker policy signals. The window to address these gaps equitably is narrowing.",
+                                    className="section-body",
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+
                 # 1. KEY FINDINGS — 2-col grid
                 html.Div(
                     className="card",
@@ -291,6 +332,64 @@ layout = html.Div(
                                     ],
                                 ),
                             ],
+                        ),
+                    ],
+                ),
+
+                # REFERENCES
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("References", className="section-title"),
+                        html.Div(
+                            [
+                                html.Div([
+                                    html.Span("01", className="fd-ref-num"),
+                                    html.Span([
+                                        "Lopez, Nadia, and Erica Yee. ",
+                                        html.Em("Who Buys Electric Cars in California — and Who Doesn't?"),
+                                        " CalMatters, 22 Mar. 2023. ",
+                                        html.A("calmatters.org", href="https://calmatters.org/environment/2023/03/california-electric-cars-demographics/", target="_blank", className="fd-ref-link"),
+                                    ], className="fd-ref-text"),
+                                ], className="fd-ref-item"),
+                                html.Div([
+                                    html.Span("02", className="fd-ref-num"),
+                                    html.Span([
+                                        "U.S. Census Bureau. ",
+                                        html.Em("American Community Survey 5-Year Estimates (2023)."),
+                                        " Accessed via Census API. ",
+                                        html.A("census.gov", href="https://www.census.gov/data/developers/data-sets/acs-5year.html", target="_blank", className="fd-ref-link"),
+                                    ], className="fd-ref-text"),
+                                ], className="fd-ref-item"),
+                                html.Div([
+                                    html.Span("03", className="fd-ref-num"),
+                                    html.Span([
+                                        "California OEHHA. ",
+                                        html.Em("CalEnviroScreen 4.0."),
+                                        " Accessed Dec. 2025. ",
+                                        html.A("oehha.ca.gov", href="https://oehha.ca.gov/calenviroscreen", target="_blank", className="fd-ref-link"),
+                                    ], className="fd-ref-text"),
+                                ], className="fd-ref-item"),
+                                html.Div([
+                                    html.Span("04", className="fd-ref-num"),
+                                    html.Span([
+                                        "National Renewable Energy Laboratory. ",
+                                        html.Em("Alternative Fuel Stations API."),
+                                        " ",
+                                        html.A("developer.nrel.gov", href="https://developer.nrel.gov/docs/transportation/alt-fuel-stations-v1/", target="_blank", className="fd-ref-link"),
+                                    ], className="fd-ref-text"),
+                                ], className="fd-ref-item"),
+                                html.Div([
+                                    html.Span("05", className="fd-ref-num"),
+                                    html.Span([
+                                        "Exploding Topics. ",
+                                        html.Em("Electric Vehicle Statistics & Trends (2024)."),
+                                        " ",
+                                        html.A("explodingtopics.com", href="https://explodingtopics.com/blog/electric-vehicles-stats", target="_blank", className="fd-ref-link"),
+                                    ], className="fd-ref-text"),
+                                ], className="fd-ref-item"),
+                            ],
+                            className="fd-ref-list",
                         ),
                     ],
                 ),

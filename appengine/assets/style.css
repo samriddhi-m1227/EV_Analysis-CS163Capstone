@@ -30,12 +30,12 @@
     --text: #222b38;
     --muted: #64748b;
     --heading: #222b38;
-    --accent: #2563eb;
+    --accent: #3b6ea8;
     --accent-soft: var(--blue-100);
     --border: var(--blue-200);
     --shadow: 0 6px 18px rgba(30, 41, 59, 0.06);
-    --hero-start: var(--blue-700);
-    --hero-end: var(--blue-400);
+    --hero-start: #1b3252;
+    --hero-end: #4a7fa5;
     --nav-bg: rgba(255,255,255,0.96);
     --toggle-bg: #f1f5f9;
     --toggle-text: #334155;
@@ -53,12 +53,12 @@
     --text: #e2e8f0;
     --muted: #94a3b8;
     --heading: #f1f5f9;
-    --accent: #60a5fa;
+    --accent: #6fa8d4;
     --accent-soft: #1e293b;
     --border: #334155;
     --shadow: 0 8px 22px rgba(15, 23, 42, 0.18);
-    --hero-start: var(--blue-900);
-    --hero-end: var(--blue-700);
+    --hero-start: #0e1d30;
+    --hero-end: #2a5f88;
     --nav-bg: rgba(30,41,59,0.96);
     --toggle-bg: #1e293b;
     --toggle-text: #f1f5f9;
@@ -1613,7 +1613,7 @@ a:hover {
 }
 
 .fd-rq-a {
-    background: #22c55e;
+    background: #2d9e6b;
 }
 
 .fd-rq-question {
@@ -1644,7 +1644,7 @@ a:hover {
     gap: 12px;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid #c2892a;
     border-radius: 0 12px 12px 0;
     padding: 14px 16px;
     transition: border-color 0.18s ease;
@@ -1653,12 +1653,12 @@ a:hover {
 .fd-surprise-icon {
     font-size: 14px;
     font-weight: 900;
-    color: #f59e0b;
+    color: #c2892a;
     flex-shrink: 0;
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: #fef3c7;
+    background: #fdf0da;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1733,6 +1733,71 @@ a:hover {
     line-height: 1.6;
 }
 
+/* Home page — intro photo split */
+.home-intro-row {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.home-intro-text {
+    flex: 1.2;
+    min-width: 0;
+}
+
+.home-intro-img-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.home-intro-photo {
+    width: 100%;
+    border-radius: 14px;
+    object-fit: cover;
+    max-height: 240px;
+    display: block;
+    box-shadow: 0 4px 16px rgba(30, 41, 59, 0.12);
+}
+
+/* Findings — forecast context row */
+.fd-context-row {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.fd-forecast-img {
+    width: 460px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 4px 14px rgba(30, 41, 59, 0.08);
+}
+
+.fd-forecast-source {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-align: center;
+}
+
+.fd-forecast-source a {
+    color: var(--muted);
+    text-decoration: underline;
+}
+
+.fd-context-text {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .home-intro-row { flex-direction: column; }
+    .home-intro-img-col { width: 100%; }
+    .fd-context-row { flex-direction: column; }
+    .fd-forecast-img { width: 100%; }
+}
+
 /* Key findings 2-col grid */
 .fd-findings-grid {
     display: grid;
@@ -1762,6 +1827,45 @@ a:hover {
     .fd-col-divider { display: none; }
     .fd-imp-grid { grid-template-columns: 1fr; }
 }
+
+/* References section */
+.fd-ref-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fd-ref-item {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+}
+
+.fd-ref-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    opacity: 0.8;
+    flex-shrink: 0;
+    min-width: 20px;
+}
+
+.fd-ref-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.fd-ref-link {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.fd-ref-link:hover { text-decoration: underline; }
 
 /* =========================
    ML — WHY THESE MODELS

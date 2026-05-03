@@ -97,15 +97,31 @@ layout = html.Div(
                 html.Div(
                     className="card",
                     children=[
-                        html.H2("Project Summary", className="section-title"),
                         html.Div(
-                            className="section-body",
+                            className="home-intro-row",
                             children=[
-                                html.P(
-                                    "California is undergoing a large-scale transition toward electric vehicles (EVs), with statewide goals aimed at reducing emissions and expanding clean transportation. However, EV adoption and public charging infrastructure may not be evenly distributed across communities. Socioeconomic conditions, housing characteristics, environmental disadvantage, and infrastructure availability may shape which communities adopt EVs more rapidly and which lag behind."
+                                html.Div(
+                                    className="home-intro-text",
+                                    children=[
+                                        html.H2("Project Summary", className="section-title"),
+                                        html.P(
+                                            "California is undergoing a large-scale transition toward electric vehicles, with statewide goals aimed at reducing emissions and expanding clean transportation. However, EV adoption and public charging infrastructure may not be evenly distributed across communities. Socioeconomic conditions, housing characteristics, environmental disadvantage, and infrastructure availability shape which communities adopt EVs more rapidly and which lag behind.",
+                                            className="section-body",
+                                        ),
+                                        html.P(
+                                            "This project analyzes EV adoption and community-level disparities across California ZIP codes — applying an end-to-end data science workflow from data curation through exploratory analysis, regression modeling, and machine learning.",
+                                            className="section-body",
+                                        ),
+                                    ],
                                 ),
-                                html.P(
-                                    "This project analyzes EV adoption and community-level disparities across California ZIP codes. Using vehicle registration data, demographic, housing and income variables, environmental justice indicators, and public charging data, we construct a unified ZIP-code-level dataset and apply an end-to-end data science workflow — from ingestion and curation through exploratory analysis, regression modeling, and machine learning."
+                                html.Div(
+                                    className="home-intro-img-col",
+                                    children=[
+                                        html.Img(
+                                            src="/assets/images/car_bg.png",
+                                            className="home-intro-photo",
+                                        ),
+                                    ],
                                 ),
                             ],
                         ),
