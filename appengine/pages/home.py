@@ -129,38 +129,72 @@ layout = html.Div(
                 ),
 
                 # =========================
-                # ROW 1
+                # WHY THIS MATTERS + IMAGES
                 # =========================
                 html.Div(
-                    className="two-column-grid",
+                    className="card",
                     children=[
+                        html.H2("Why This Matters", className="section-title"),
+
+                        # Images side by side
                         html.Div(
-                            className="half-card",
+                            className="wtm-img-row",
                             children=[
-                                html.H2("Why This Matters", className="section-title"),
-                                html.P(
-                                    "Understanding EV disparities is essential for evaluating whether California's clean transportation transition is equitable. If EV adoption and charging access remain concentrated in wealthier or structurally advantaged communities, the benefits of electrification may not be shared broadly."
+                                html.Div(
+                                    className="wtm-img-item",
+                                    children=[
+                                        html.Img(src="/assets/images/forecast.png", className="home-viz-img"),
+                                        html.P(
+                                            ["Source: ", html.A("Exploding Topics, 2024", href="https://explodingtopics.com/blog/electric-vehicles-stats", target="_blank")],
+                                            className="home-viz-source",
+                                        ),
+                                    ],
                                 ),
-                                html.P(
-                                    "Looking beyond statewide averages helps reveal how local conditions — income, education, housing tenure, and charging infrastructure — shape participation in the EV transition."
+                                html.Div(
+                                    className="wtm-img-item",
+                                    children=[
+                                        html.Img(src="/assets/images/change.png", className="home-viz-img"),
+                                        html.P(
+                                            ["Source: ", html.A("Axios SF, 2025", href="https://www.axios.com/local/san-francisco/2025/03/20/california-ev-chargers-increase-statewide", target="_blank")],
+                                            className="home-viz-source",
+                                        ),
+                                    ],
                                 ),
                             ],
                         ),
+
+                        # Text below
+                        html.P(
+                            "EV adoption in California is growing fast — projected to reach 3 million vehicles by 2028. But aggregate growth figures obscure a sharper question: who is actually participating in that growth, and who is being left behind?",
+                            className="section-body",
+                        ),
+                        html.P(
+                            "Understanding EV disparities is essential for evaluating whether California's clean transportation transition is equitable. If EV adoption and charging access remain concentrated in wealthier or structurally advantaged communities, the benefits of electrification may not be shared broadly.",
+                            className="section-body",
+                        ),
+                        html.P(
+                            "Looking beyond statewide averages reveals how local conditions — income, education, housing tenure, and charging infrastructure — shape which communities participate in the EV transition and which are left out.",
+                            className="section-body",
+                        ),
+                    ],
+                ),
+
+                # =========================
+                # ROW 1
+                # =========================
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("Key Research Questions", className="section-title"),
                         html.Div(
-                            className="half-card",
-                            children=[
-                                html.H2("Key Research Questions", className="section-title"),
-                                html.Div(
-                                    [
-                                        rq_card(1, "How are EV adoption rates associated with income, education, housing value, and homeownership?"),
-                                        rq_card(2, "Do communities with greater environmental burden and socioeconomic vulnerability show lower EV adoption?"),
-                                        rq_card(3, "Is the relationship between income and EV adoption nonlinear, suggesting affordability thresholds?"),
-                                        rq_card(4, "Is charging infrastructure distributed unevenly across California ZIP codes?"),
-                                        rq_card(5, "Do structural socioeconomic factors explain the disparity that appears across racial and ethnic composition?"),
-                                    ],
-                                    className="rq-grid",
-                                ),
+                            [
+                                rq_card(1, "How are EV adoption rates associated with income, education, housing value, and homeownership?"),
+                                rq_card(2, "Do communities with greater environmental burden and socioeconomic vulnerability show lower EV adoption?"),
+                                rq_card(3, "Is the relationship between income and EV adoption nonlinear, suggesting affordability thresholds?"),
+                                rq_card(4, "Is charging infrastructure distributed unevenly across California ZIP codes?"),
+                                rq_card(5, "Do structural socioeconomic factors explain the disparity that appears across racial and ethnic composition?"),
                             ],
+                            className="rq-grid",
                         ),
                     ],
                 ),

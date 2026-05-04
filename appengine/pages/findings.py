@@ -1,7 +1,108 @@
 import dash
-from dash import html
+from dash import html, dcc, Input, Output, State, ctx
 
 dash.register_page(__name__, path="/findings")
+
+SLIDES = [
+    {
+        "tag": "Finding 1 & 2",
+        "title": "The Whole Picture at a Glance",
+        "image": "ev_corr.png",
+        "text": "The correlation heatmap tells the core story of this project. Education level, home value, and household income are the three strongest positive predictors of EV adoption — all above 0.80. At the same time, environmental burden and poverty are negatively associated. This single chart establishes that EV adoption is not random: it mirrors the broader geography of socioeconomic advantage.",
+    },
+    {
+        "tag": "Finding 1 & 2",
+        "title": "Regression Confirms What Correlations Suggest",
+        "image": "regressionresults.png",
+        "text": "After accounting for all variables simultaneously in a regression model, education still comes out on top. Home value and income follow. Renter share is negative — homeowners have easier access to home charging. Infrastructure matters, but its coefficient is smaller than the socioeconomic factors. This confirms that structural advantage, not infrastructure alone, drives adoption.",
+    },
+    {
+        "tag": "Finding 3",
+        "title": "Environmental Burden Predicts Who Gets Left Out",
+        "image": "ev_calenviro_boxplot.png",
+        "text": "ZIP codes in the highest environmental burden quartile show consistently lower EV adoption than those in the lowest. The communities already facing the greatest pollution exposure are the least likely to benefit from the clean transportation transition — a double inequity where those who need cleaner air most are the furthest from the technology that would help provide it.",
+    },
+    {
+        "tag": "Finding 4",
+        "title": "Infrastructure Reinforces Gaps, Not Closes Them",
+        "image": "model2_infrastructure_income_interaction.png",
+        "text": "When income and charging infrastructure interact in the model, the interaction term is positive — meaning higher-income communities benefit more from each additional charger. The gap between income groups widens as infrastructure increases rather than narrowing. Placing chargers where adoption is already high amplifies existing disparities rather than reducing them.",
+    },
+    {
+        "tag": "Finding 5",
+        "title": "EV Deserts Are Structurally Predictable",
+        "image": "model3_ev_desert_importance.png",
+        "text": "The random forest classifier predicts which ZIP codes fall in the bottom 20% of EV adoption with very high accuracy. The most important features are education level, home value, and income — the same structural factors that appeared in the regression. EV deserts are not randomly distributed: they are highly concentrated in communities that are disadvantaged across multiple dimensions at once.",
+    },
+    {
+        "tag": "Finding 6",
+        "title": "Charging Infrastructure Follows Its Own Logic",
+        "image": "charging_incomequantile.png",
+        "text": "While EV adoption gaps are highly predictable from socioeconomic disadvantage, charging infrastructure gaps are not. This chart shows that infrastructure does concentrate in higher-income areas — but the pattern is driven by private investment decisions, utility partnerships, and policy programs rather than community need or demand. That distinction matters: you cannot close adoption gaps simply by building chargers where the model says disadvantage is highest.",
+    },
+    {
+        "tag": "Finding 7",
+        "title": "Plug-In Hybrids Are a Gateway to Full EVs",
+        "image": "model5_phev_vs_ev.png",
+        "text": "ZIP codes with higher plug-in hybrid vehicle share consistently show higher full EV adoption — and PHEV share turned out to be the single strongest predictor in the pathway model. Traditional gasoline hybrids do not show the same relationship. This suggests that the transition is behavioral as much as financial: communities that have already experienced partial electrification are far more likely to take the next step to a fully electric vehicle.",
+    },
+    {
+        "tag": "Finding 8",
+        "title": "Income's Effect Accelerates — It's Not Linear",
+        "image": "polyEV.png",
+        "text": "A polynomial regression reveals that EV adoption does not rise steadily with income — it accelerates. Below a certain threshold, adoption barely moves. Above it, adoption takes off rapidly. This threshold effect means lower-income communities face compounding barriers, not just a simple affordability gap. It also explains why moderate income gains alone may not be enough to shift adoption without broader structural support.",
+    },
+]
+
+
+@dash.callback(
+    Output("fd-slide-index", "data"),
+    Input("fd-slide-prev", "n_clicks"),
+    Input("fd-slide-next", "n_clicks"),
+    State("fd-slide-index", "data"),
+    prevent_initial_call=True,
+)
+def update_slide(prev_clicks, next_clicks, current):
+    n = len(SLIDES)
+    if ctx.triggered_id == "fd-slide-prev":
+        return (current - 1) % n
+    return (current + 1) % n
+
+
+@dash.callback(
+    Output("fd-slide-content", "children"),
+    Output("fd-slide-dots", "children"),
+    Input("fd-slide-index", "data"),
+)
+def render_slide(idx):
+    slide = SLIDES[idx]
+    content = html.Div(
+        className="fd-slide-body",
+        children=[
+            html.Div(
+                className="fd-slide-img-col",
+                children=[
+                    html.Img(src=f"/static/images/{slide['image']}", className="fd-slide-img"),
+                ],
+            ),
+            html.Div(
+                className="fd-slide-text-col",
+                children=[
+                    html.Span(slide["tag"], className="fd-slide-tag"),
+                    html.H3(slide["title"], className="fd-slide-title"),
+                    html.P(slide["text"], className="fd-slide-text"),
+                ],
+            ),
+        ],
+    )
+    dots = html.Div(
+        [
+            html.Span(className="fd-slide-dot fd-slide-dot-active" if i == idx else "fd-slide-dot")
+            for i in range(len(SLIDES))
+        ],
+        className="fd-slide-dots",
+    )
+    return content, dots
 
 
 def page_banner(title, subtitle, chips):
@@ -101,42 +202,24 @@ layout = html.Div(
                     ],
                 ),
 
-                # 0. CONTEXT CARD
+                # CAROUSEL
                 html.Div(
-                    className="card fd-context-row",
+                    className="card",
                     children=[
-                        html.Div(
-                            style={"flexShrink": "0"},
-                            children=[
-                                html.Img(
-                                    src="/assets/images/forecast.png",
-                                    className="fd-forecast-img",
-                                ),
-                                html.P(
-                                    [
-                                        "Source: ",
-                                        html.A(
-                                            "Exploding Topics, 2024",
-                                            href="https://explodingtopics.com/blog/electric-vehicles-stats",
-                                            target="_blank",
-                                        ),
-                                    ],
-                                    className="fd-forecast-source",
-                                ),
-                            ],
+                        html.H2("Key Visualizations", className="section-title"),
+                        html.P(
+                            "The charts that most directly support the major findings — drawn from EDA, regression analysis, and machine learning.",
+                            className="section-body",
+                            style={"marginBottom": "20px"},
                         ),
+                        dcc.Store(id="fd-slide-index", data=0),
+                        html.Div(id="fd-slide-content"),
                         html.Div(
-                            className="fd-context-text",
+                            className="fd-slide-nav",
                             children=[
-                                html.H2("Why This Matters Now", className="section-title"),
-                                html.P(
-                                    "EV adoption in California is growing fast — projected to reach 3 million vehicles by 2028. But aggregate growth figures obscure a sharper question: who is actually participating in that growth, and who is being left behind?",
-                                    className="section-body",
-                                ),
-                                html.P(
-                                    "As adoption scales, the communities still on the outside of the transition face compounding disadvantages — less exposure to the technology, fewer infrastructure investments, and weaker policy signals. The window to address these gaps equitably is narrowing.",
-                                    className="section-body",
-                                ),
+                                html.Button("←", id="fd-slide-prev", className="fd-slide-btn"),
+                                html.Div(id="fd-slide-dots"),
+                                html.Button("→", id="fd-slide-next", className="fd-slide-btn"),
                             ],
                         ),
                     ],

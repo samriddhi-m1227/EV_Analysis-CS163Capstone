@@ -10,6 +10,8 @@ navbar = html.Div(
             [
                 dcc.Link("Home", href="/", className="nav-link"),
 
+                dcc.Link("Methods", href="/methods", className="nav-link"),
+
                 html.Div(
                     [
                         html.Span("EDA", className="nav-link dropdown-label"),

@@ -1,7 +1,114 @@
 import dash
-from dash import html
+from dash import html, dcc, Input, Output, callback
+import pandas as pd
+import plotly.express as px
+import json
+import io
+import os
 
 dash.register_page(__name__, path="/analysis")
+
+GCS_BUCKET = "ev-analysis-data-cs163"
+_BASE = os.path.dirname(os.path.dirname(__file__))
+
+
+def _load_df():
+    try:
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.bucket(GCS_BUCKET)
+        data = bucket.blob("final.csv").download_as_bytes()
+        return pd.read_csv(io.BytesIO(data))
+    except Exception:
+        return pd.read_csv(os.path.join(_BASE, "data", "final.csv"))
+
+
+def _load_geojson():
+    try:
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.bucket(GCS_BUCKET)
+        text = bucket.blob("ca_zips_simplified.json").download_as_text()
+        return json.loads(text)
+    except Exception:
+        path = os.path.join(_BASE, "data", "ca_zips_simplified.json")
+        if os.path.exists(path):
+            with open(path) as f:
+                return json.load(f)
+        return None
+
+
+_df = _load_df()
+_geojson = _load_geojson()
+
+
+def _build_map():
+    if _geojson is None:
+        return None
+    df = _df.copy()
+    df["ZIP"] = df["ZIP"].astype(str).str.zfill(5)
+    fig = px.choropleth(
+        df,
+        geojson=_geojson,
+        locations="ZIP",
+        featureidkey="properties.ZCTA5CE10",
+        color="EV_perc",
+        hover_data={
+            "County": True,
+            "Median_Household_Income": True,
+            "BachOrHigher_perc": True,
+            "ZIP": False,
+        },
+        labels={
+            "EV_perc": "EV Adoption %",
+            "Median_Household_Income": "Median Income",
+            "BachOrHigher_perc": "Bach+ %",
+            "County": "County",
+        },
+        color_continuous_scale="Blues",
+    )
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(
+        margin={"r": 0, "t": 10, "l": 0, "b": 0},
+        height=520,
+        coloraxis_colorbar=dict(
+            title="EV %",
+            thickness=14,
+            len=0.65,
+            tickfont=dict(size=11),
+        ),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, sans-serif", size=12),
+    )
+    return fig
+
+
+_map_fig = _build_map()
+
+
+@callback(
+    Output("analysis-map", "figure"),
+    Input("theme-store", "data"),
+)
+def update_map_theme(theme):
+    if _map_fig is None:
+        return {}
+    import copy
+    fig = copy.deepcopy(_map_fig)
+    font_color = "#e2e8f0" if theme == "dark" else "#222b38"
+    paper_bg = "rgba(0,0,0,0)"
+    fig.update_layout(
+        paper_bgcolor=paper_bg,
+        font=dict(color=font_color, family="Inter, sans-serif", size=12),
+        coloraxis_colorbar=dict(
+            title=dict(text="EV %", font=dict(color=font_color)),
+            tickfont=dict(color=font_color),
+            thickness=14,
+            len=0.65,
+        ),
+    )
+    return fig
 
 
 def page_banner(title, subtitle, chips):
@@ -135,6 +242,28 @@ layout = html.Div(
                             "and access to charging infrastructure. By examining these relationships together, this analysis highlights how socioeconomic advantage, rather than "
                             "any single factor, shapes which communities are able to participate in the transition to electric vehicles.",
                             className="section-body",
+                        ),
+                    ],
+                ),
+
+                # INTERACTIVE MAP
+                html.Div(
+                    className="card",
+                    children=[
+                        html.H2("EV Adoption Across California ZIP Codes", className="section-title"),
+                        html.P(
+                            "Hover over any ZIP code to explore EV adoption rate alongside median income, educational attainment, and charging infrastructure. Zoom and pan to focus on specific regions.",
+                            className="section-body",
+                            style={"marginBottom": "16px"},
+                        ),
+                        dcc.Graph(
+                            id="analysis-map",
+                            figure=_map_fig or {},
+                            config={"scrollZoom": True, "displayModeBar": True, "displaylogo": False},
+                            style={"height": "520px", "borderRadius": "12px", "overflow": "hidden"},
+                        ) if _map_fig is not None else html.P(
+                            "Map unavailable: add ca_california_zip_codes_geo.min.json to appengine/data/ to enable.",
+                            style={"color": "var(--muted)", "fontStyle": "italic"},
                         ),
                     ],
                 ),
