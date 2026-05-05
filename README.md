@@ -14,6 +14,8 @@ California is undergoing a large-scale transition toward electric vehicles, with
 
 This project analyzes EV adoption and community-level disparities across California ZIP codes. Using vehicle registration data, census demographics, environmental justice indicators, and public charging station records, we construct a unified ZIP-code-level dataset covering 1,800+ ZIP codes and 34 features. The project spans exploratory data analysis, regression modeling, and six machine learning experiments — all presented through an interactive web dashboard.
 
+![Dashboard Preview](docs/ML_demopic.png)
+
 ---
 
 ## Research Questions
@@ -149,16 +151,111 @@ EV_Analysis-CS163Capstone/
 ```
 
 ---
+## ⚙️ Usage
 
-## Running Locally
+The project is structured as a modular pipeline:
 
+1. Data Acquisition
+    * Collect EV, demographic, environmental, and infrastructure data
+2. Data Processing
+    * Clean, normalize, and merge all datasets at ZIP level
+3. Modeling
+    * Train regression and classification models
+    * Evaluate feature importance and predictive performance
+4. Visualization
+    * Generate insights through EDA and analysis dashboards
+5. Deployment
+    * Serve results through an interactive Dash web app
+---
+## Full Pipeline (End-to-End Flow)
+
+Data Collection
+    ↓
+Data Cleaning & Feature Engineering
+    ↓
+Dataset Integration (ZIP-level)
+    ↓
+Exploratory Data Analysis (EDA)
+    ↓
+Statistical Modeling & Machine Learning
+    ↓
+Visualization & Insights
+    ↓
+Dash Web Application
+    ↓
+Cloud Deployment (Google App Engine)
+
+1. Data Collection
+    * EV registrations (CalMatters)
+    * Census demographics (ACS API)
+    * Environmental burden (CalEnviroScreen)
+    * Charging infrastructure (NREL API)
+2. Data Processing
+    * Normalize variables (shares instead of counts)
+    * Aggregate tract-level data to ZIP level
+    * Handle missing values (fill charging with 0)
+    * Create engineered features:
+        * PortsPer10kPeople
+        * ChargersPer1000EV
+        * RenterShare
+3. Modeling
+    * Regression models (Ridge, OLS)
+    * Classification models (Logistic, Random Forest)
+    * Interaction models (Income × Infrastructure)
+4. Visualization
+    * EDA plots
+    * Analysis insights
+    * ML interpretation visuals
+5. Deployment
+    * Dash web app
+    * Hosted via Google App Engine
+---
+## System Design
+
+User (Browser)
+    ↓
+Dash Web App (Flask Server)
+    ↓
+Static Data (CSV + Images)
+    ↓
+Computed Model Outputs
+
+# Design Choices 
+- Models are trained offline -> faster runtime
+- Dashboard loads precomputed results -> no latency 
+- Static dataset ensures reproducibility 
+- NO database dependency -> simple deployment 
+
+# Scalability 
+- Hosted on Google App Engine
+- Automatically scales with traffic 
+- Stateless design (no session storage)
+- Can be extended to:
+      - Cloud Storage (GCS)
+      - API-based inference
+      - Real-time model serving
+---
+## Setup Instructions
+
+Clone the Repository
+```bash
+git clone https://github.com/samriddhi-m1227/EV_Analysis-CS163Capstone.git
+cd EV_Analysis-CS163Capstone
+```
+Install Dependencies
 ```bash
 cd appengine
 pip install -r requirements.txt
+```
+Verify Data
+```bash
+appengine/data/final.csv
+```
+Run Locally
+```bash
 python app.py
 # → http://127.0.0.1:8050
 ```
-
 ---
 
 ## Limitations
@@ -181,7 +278,7 @@ B.S. Data Science, San Jose State University ('26)
 Samriddhi has experience across data, software, and product roles and holds leadership positions in technical consulting on campus. She is passionate about responsible computing and using data to surface equity patterns that aggregate statistics miss. On this project, she led the data pipeline, exploratory analysis, machine learning modeling, and end-to-end web application development.
 
 ### Bhavya Vatsavayi
-<img src="appengine/static/images/1772510637270.png" alt="Bhavya Vatsavayi" width="120" style="border-radius:50%"/>
+![Contributer](appengine/assets/images/bhavya.png)
 
 B.S. Data Science, San Jose State University ('26)
 
