@@ -181,9 +181,13 @@ B.S. Data Science, San Jose State University ('26)
 Samriddhi has experience across data, software, and product roles and holds leadership positions in technical consulting on campus. She is passionate about responsible computing and using data to surface equity patterns that aggregate statistics miss. On this project, she led the data pipeline, exploratory analysis, machine learning modeling, and end-to-end web application development.
 
 ### Bhavya Vatsavayi
-B.S. Data Science, San Jose State University
+<img src="appengine/static/images/1772510637270.png" alt="Bhavya Vatsavayi" width="120" style="border-radius:50%"/>
 
-[fill in here]
+B.S. Data Science, San Jose State University ('26)
+
+Bhavya has experience across data analytics, BI, and ML focused roles. She holds leadership roles in research, analytics and excel.
+For this project, led the data pipeline, exploratory analysis, and further analysis to support the development and validation of the machine learning model and its findings.
+maybe this picture
 
 ---
 
