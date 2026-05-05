@@ -169,6 +169,7 @@ The project is structured as a modular pipeline:
 ---
 ## Full Pipeline (End-to-End Flow)
 
+```
 Data Collection
     ↓
 Data Cleaning & Feature Engineering
@@ -184,6 +185,7 @@ Visualization & Insights
 Dash Web Application
     ↓
 Cloud Deployment (Google App Engine)
+```
 
 1. Data Collection
     * EV registrations (CalMatters)
@@ -210,8 +212,9 @@ Cloud Deployment (Google App Engine)
     * Dash web app
     * Hosted via Google App Engine
 ---
-## System Design
+# System Design
 
+```
 User (Browser)
     ↓
 Dash Web App (Flask Server)
@@ -219,14 +222,15 @@ Dash Web App (Flask Server)
 Static Data (CSV + Images)
     ↓
 Computed Model Outputs
+```
 
-# Design Choices 
+## Design Choices 
 - Models are trained offline -> faster runtime
 - Dashboard loads precomputed results -> no latency 
 - Static dataset ensures reproducibility 
 - NO database dependency -> simple deployment 
 
-# Scalability 
+## Scalability 
 - Hosted on Google App Engine
 - Automatically scales with traffic 
 - Stateless design (no session storage)
@@ -278,7 +282,7 @@ B.S. Data Science, San Jose State University ('26)
 Samriddhi has experience across data, software, and product roles and holds leadership positions in technical consulting on campus. She is passionate about responsible computing and using data to surface equity patterns that aggregate statistics miss. On this project, she led the data pipeline, exploratory analysis, machine learning modeling, and end-to-end web application development.
 
 ### Bhavya Vatsavayi
-![Contributer](appengine/assets/images/bhavya.png)
+<img src="appengine/static/images/bhavya.png" alt="Bhavya Vatsavayi" width="120" style="border-radius:50%"/>
 
 B.S. Data Science, San Jose State University ('26)
 
