@@ -28,6 +28,7 @@ navbar = html.Div(
 
                 dcc.Link("Analysis", href="/analysis", className="nav-link"),
                 dcc.Link("ML", href="/ml", className="nav-link"),
+                dcc.Link("Live Service", href="/live-service", className="nav-link"),
                 dcc.Link("Findings", href="/findings", className="nav-link"),
             ],
             className="nav-links",

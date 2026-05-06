@@ -297,10 +297,10 @@ layout = html.Div(
                                 ),
                                 html.Div(
                                     [
-                                        html.Div(className="contributor-avatar-placeholder", children=["B"]),
+                                        html.Img(src="/assets/images/bhavya.png", className="contributor-avatar"),
                                         html.H3("Bhavya", className="contributor-name"),
                                         html.P(
-                                            "Placeholder: Bhavya is a Computer Science student at UC Santa Cruz with a focus on machine learning and statistical modeling. She led the regression and ML modeling components of this project. She is passionate about using data to drive meaningful insights. This is a placeholder sentence to fill the bio.",
+                                            "Bhavya is a B.S. Data Science 26' student at San Jose State University with experience across data analytics, BI, and ML focused roles. She holds leadership roles in research, analytics and excel. For this project, led the data pipeline, exploratory analysis, and further analysis to support the development and validation of the machine learning model and its findings. maybe this picture.",
                                             className="contributor-bio",
                                         ),
                                     ],
