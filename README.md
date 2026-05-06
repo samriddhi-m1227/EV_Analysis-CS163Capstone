@@ -259,12 +259,16 @@ B.S. Data Science, San Jose State University ('26)
 
 Samriddhi has experience across data, software, and product roles and holds leadership positions in technical consulting on campus. On this project, she led the data pipeline, exploratory analysis, machine learning modeling, and end-to-end web application development.
 
+[LinkedIn](https://www.linkedin.com/in/samriddhi-matharu-827082235/)
+
 ### Bhavya Vatsavayi
 <img src="appengine/assets/images/bhavya.png" alt="Bhavya Vatsavayi" width="120" style="border-radius:50%"/>
 
 B.S. Data Science, San Jose State University ('26)
 
 Bhavya has experience across data analytics, BI, and ML focused roles and holds leadership roles in research and analytics. On this project, she led the further analysis and contributed to exploratory data analysis, supporting the development and validation of the machine learning models.
+
+[LinkedIn](https://www.linkedin.com/in/bhavyapreethika/)
 
 ---
 
