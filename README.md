@@ -2,15 +2,20 @@
 
 **CS 163 Capstone · San Jose State University · Spring 2026**
 
-Live dashboard → [sp26-project-491005.wm.r.appspot.com](https://sp26-project-491005.wm.r.appspot.com)
+Live Website → [sp26-project-491005.wm.r.appspot.com](https://sp26-project-491005.wm.r.appspot.com)
 
 ![Dashboard Preview](docs/preview.png)
 
 ---
 
-## What is this repo?
+## About the project
 
 This project analyzes EV adoption and public charging infrastructure disparities across 1,800+ California ZIP codes. Using vehicle registration data, census demographics, environmental justice indicators, and charging station records, we build a unified dataset, run six ML experiments, and serve the results through an interactive web dashboard deployed on Google Cloud.
+
+---
+
+## About the repo
+This repo contains our data acquisition, eda/analysis, and modeling notebooks, a six-model ML pipeline, a FastAPI inference service (live model) containerized for Cloud Run, and a multi-page Plotly Dash app deployed on Google App Engine — all connected through Google Cloud Storage.
 
 ---
 
@@ -28,7 +33,7 @@ This project analyzes EV adoption and public charging infrastructure disparities
 
 ```
 notebooks/get_data.ipynb          →   notebooks/eda_analysis.ipynb
-(collect from 4 APIs/sources)         (clean, merge, engineer features)
+(collect from 4 APIs/sources)         (clean, engineer features, surface initial insights, visualizations)
                                                   ↓
                                     notebooks/modeling.ipynb
                                     (6 ML experiments, export charts)
@@ -40,7 +45,7 @@ notebooks/get_data.ipynb          →   notebooks/eda_analysis.ipynb
 
 **Step 1 — Data Collection** (`notebooks/get_data.ipynb`): Pull EV registrations (CalMatters/DMV), census demographics (ACS API), environmental burden scores (CalEnviroScreen 4.0), and charging station data (NREL API). Raw outputs land in `data/`.
 
-**Step 2 — Feature Engineering** (`notebooks/eda_analysis.ipynb`): Normalize counts to shares (`RenterShare`, `MultiUnitShare`, `PovertyShare`), aggregate CalEnviroScreen tract data to ZIP level via population-weighted averages, fill unmatched charging ZIPs with zero, and derive infrastructure features (`PortsPer10kPeople`, `ChargersPer1000EV`). Final integrated table: `data/final.csv`.
+**Step 2 — Feature Engineering, EDA & Analysis** (`notebooks/eda_analysis.ipynb`): Normalize counts to shares (`RenterShare`, `MultiUnitShare`, `PovertyShare`), aggregate CalEnviroScreen tract data to ZIP level via population-weighted averages, fill unmatched charging ZIPs with zero, and derive infrastructure features (`PortsPer10kPeople`, `ChargersPer1000EV`). Also contains our full exploratory analysis — distribution plots, correlation heatmaps, geographic visualizations, and initial regression analyses. Final integrated table: `data/final.csv`.
 
 **Step 3 — Modeling** (`notebooks/modeling.ipynb`): Six experiments using Ridge Regression, Random Forest, and Logistic Regression. Exported charts are saved to `appengine/static/images/`.
 
@@ -64,7 +69,8 @@ EV_Analysis-CS163Capstone/
 │   │   ├── methods.py
 │   │   ├── data.py
 │   │   ├── eda.py
-│   │   ├── analysis.py
+│   │   ├── analysis.py          # Regression analysis and interactive CA map
+│   │   ├── further_analysis.py  # Extended analysis sections (continuation of analysis page)
 │   │   ├── ml.py                # Interactive ML model explorer (6 models)
 │   │   ├── live_service.py      # Live EV Desert Predictor (calls Cloud Run)
 │   │   └── findings.py
@@ -76,15 +82,15 @@ EV_Analysis-CS163Capstone/
 │   └── requirements.txt
 ├── notebooks/                    # Exploration and modeling (Jupyter)
 │   ├── get_data (1).ipynb       # Data collection
-│   ├── eda_analysis.ipynb       # EDA and feature engineering
+│   ├── eda_analysis.ipynb       # EDA and feature engineering, analysis, visuals
 │   └── modeling (1).ipynb       # ML experiments
 ├── data/                         # Raw and intermediate data files
-│   ├── ev-zipcode-demographics.csv
+│   ├── ev-zipcode-demographics.csv #note: there a couple more dataset files in here but these are the main ones after merge
 │   ├── acs_extra_data.csv
 │   ├── ev_acs_cal.csv
 │   ├── final.csv                # Final merged dataset
 │   └── final_clean.csv
-└── docs/                         # Project documents and images
+└── docs/                         # Project prodocuments and images
 ```
 
 ---
@@ -99,7 +105,7 @@ python app.py
 # → http://127.0.0.1:8050
 ```
 
-To re-run the data pipeline or modeling, open the notebooks in `notebooks/` in order: `get_data` → `eda_analysis` → `modeling`.
+To re-run the data pipeline or modeling, open the notebooks in colab: `notebooks/` in order: `get_data` → `eda_analysis` → `modeling`.
 
 ---
 
@@ -129,7 +135,7 @@ To re-run the data pipeline or modeling, open the notebooks in `notebooks/` in o
 
 **Scalability:**
 - App Engine is configured with `automatic_scaling` (`target_cpu_utilization: 0.90`) and scales horizontally on traffic spikes. `max_instances: 1` is set for cost control during the project period and can be raised for production use.
-- Cloud Run is fully serverless and scales to zero when idle — each inference request is stateless and handled independently.
+- Cloud Run is fully serverless and scales to zero when idle, each inference request is stateless and handled independently.
 - GCS decouples data from compute: updating the dataset requires only re-uploading `final.csv` to the bucket; neither service needs redeployment.
 
 ---
@@ -140,14 +146,14 @@ To re-run the data pipeline or modeling, open the notebooks in `notebooks/` in o
 
 The inference service is a FastAPI application deployed to Google Cloud Run. On startup it downloads `final.csv` from GCS, fits a `StandardScaler` and `LogisticRegression` classifier (scikit-learn), and holds the trained objects in memory. No model artifact is persisted — the model re-trains from the data at each cold start (~1 second).
 
-**Why Logistic Regression:** Produces well-calibrated probabilities, is interpretable, trains instantly, and achieves 0.968 AUC on this task — competitive with the Random Forest (0.974 AUC) at a fraction of the serving complexity.
+**Why Logistic Regression:** Produces well-calibrated probabilities, is interpretable, trains instantly, and achieves 0.968 AUC on this task — comparatively competitive with the Random Forest (0.974 AUC).
 
 **Endpoints:**
 
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/health` | Returns `{"status": "ok", "model_ready": true}` |
-| `POST` | `/predict` | Accepts 6 community features, returns classification + probabilities |
+| `POST` | `/predict` | Accepts 6  features, returns classification + probabilities |
 
 **Input (JSON body):**
 ```json
@@ -206,7 +212,7 @@ Full model details, coefficient plots, and feature importance charts are in the 
 2. **EV deserts are highly predictable** — the bottom 20% by adoption cluster tightly around structural disadvantage (AUC 0.968).
 3. **Infrastructure reinforces advantage** — charging access has a stronger effect in higher-income areas, potentially widening gaps.
 4. **Charging deserts follow different logic** — infrastructure placement (AUC 0.714) is far harder to predict than adoption, reflecting private investment and policy decisions rather than community need.
-5. **PHEV adoption signals EV readiness** — plug-in hybrid share is the single strongest behavioral predictor of full EV adoption.
+5. **PHEV adoption signals EV readiness** — plug-in hybrid share is the single strongest vehicle predictor of full EV adoption.
 
 ---
 
