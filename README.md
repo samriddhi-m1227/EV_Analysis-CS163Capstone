@@ -253,7 +253,7 @@ Full model details, coefficient plots, and feature importance charts are in the 
 ## Authors
 
 ### Samriddhi Matharu
-<img src="appengine/static/images/sam.png" alt="Samriddhi Matharu" width="120" style="border-radius:50%"/>
+<img src="appengine/assets/images/sam.png" alt="Samriddhi Matharu" width="120" style="border-radius:50%"/>
 
 B.S. Data Science, San Jose State University ('26)
 
