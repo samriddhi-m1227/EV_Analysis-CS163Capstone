@@ -250,7 +250,7 @@ layout = html.Div(
                 html.Div(
                     className="card",
                     children=[
-                        html.H2("EV Adoption Across California ZIP Codes", className="section-title"),
+                        html.H2("Interactive: EV Adoption Across California ZIP Codes", className="section-title"),
                         html.P(
                             "Hover over any ZIP code to explore EV adoption rate alongside median income, educational attainment, and charging infrastructure. Zoom and pan to focus on specific regions.",
                             className="section-body",

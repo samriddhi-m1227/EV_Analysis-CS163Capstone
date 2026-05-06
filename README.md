@@ -59,43 +59,55 @@ notebooks/get_data.ipynb          →   notebooks/eda_analysis.ipynb
 
 ```
 EV_Analysis-CS163Capstone/
-├── appengine/                    # Dash web app (deployed to Google App Engine)
-│   ├── app.py                   # App entry point, navbar, dark/light theme
-│   ├── app.yaml                 # App Engine config (runtime, scaling, env vars)
+├── appengine/                        # Dash web app (deployed to Google App Engine)
+│   ├── app.py                        # App entry point, navbar, dark/light theme
+│   ├── app.yaml                      # App Engine config (runtime, scaling, env vars)
 │   ├── requirements.txt
-│   ├── assets/style.css         # Custom stylesheet (light + dark themes)
-│   ├── pages/                   # One file per route
+│   ├── assets/
+│   │   ├── style.css                 # Custom stylesheet (light + dark themes)
+│   │   └── images/                   # UI assets served at /assets/images/
+│   │       ├── sam.png               # Contributor photo
+│   │       ├── bhavya.png            # Contributor photo
+│   │       ├── car_bg.png            # Home page background
+│   │       └── forecast.png          # UI graphic
+│   ├── pages/                        # One file per route
 │   │   ├── home.py
 │   │   ├── methods.py
 │   │   ├── data.py
 │   │   ├── eda.py
-│   │   ├── analysis.py          # Regression analysis and interactive CA map
-│   │   ├── further_analysis.py  # Extended analysis sections (continuation of analysis page)
-│   │   ├── ml.py                # Interactive ML model explorer (6 models)
-│   │   ├── live_service.py      # Live EV Desert Predictor (calls Cloud Run)
+│   │   ├── analysis.py               # Regression analysis and interactive CA map
+│   │   ├── further_analysis.py       # Extended analysis (continuation of analysis page)
+│   │   ├── ml.py                     # Interactive ML model explorer (6 models)
+│   │   ├── live_service.py           # Live EV Desert Predictor (calls Cloud Run)
 │   │   └── findings.py
-│   ├── static/images/           # Exported charts and visualizations
-│   └── data/                    # Local fallback dataset + GeoJSON map
-├── inference_service/            # Logistic regression API (deployed to Cloud Run)
-│   ├── main.py                  # FastAPI app: trains at startup, serves /predict
+│   ├── static/images/                # Exported notebook charts served at /static/images/
+│   └── data/                         # Local fallback dataset + GeoJSON map
+├── inference_service/                # Logistic regression API (deployed to Cloud Run)
+│   ├── main.py                       # FastAPI app: trains at startup, serves /predict
 │   ├── Dockerfile
 │   └── requirements.txt
-├── notebooks/                    # Exploration and modeling (Jupyter)
-│   ├── get_data (1).ipynb       # Data collection
-│   ├── eda_analysis.ipynb       # EDA and feature engineering, analysis, visuals
-│   └── modeling (1).ipynb       # ML experiments
-├── data/                         # Raw and intermediate data files
-│   ├── ev-zipcode-demographics.csv #note: there a couple more dataset files in here but these are the main ones after merge
+├── notebooks/                        # Exploration and modeling (Jupyter)
+│   ├── get_data (1).ipynb            # Data collection from APIs
+│   ├── eda_analysis.ipynb            # EDA, feature engineering, analysis, visuals
+│   └── modeling (1).ipynb            # ML experiments
+├── data/                             # Raw and intermediate data files
+│   ├── ev-zipcode-demographics.csv
 │   ├── acs_extra_data.csv
 │   ├── ev_acs_cal.csv
-│   ├── final.csv                # Final merged dataset
-│   └── final_clean.csv
-└── docs/                         # Project prodocuments and images
+│   ├── ca_california_zip_codes_geo.min.json   # GeoJSON for CA ZIP code boundaries
+│   ├── calenviroscreen40resultsdatadictionary_f_2021.xlsx  # CalEnviroScreen data dictionary
+│   ├── final.csv                     # Final merged dataset
+│   └── final_clean.csv               # Cleaned version of final dataset
+└── docs/                             # README images and project documents (not served by app)
+    ├── preview.png
+    └── ML_demopic.png
 ```
 
 ---
 
 ## Setup
+
+**Prerequisites:** Python 3.10+, pip
 
 ```bash
 git clone https://github.com/samriddhi-m1227/EV_Analysis-CS163Capstone.git
@@ -105,7 +117,9 @@ python app.py
 # → http://127.0.0.1:8050
 ```
 
-To re-run the data pipeline or modeling, open the notebooks in colab: `notebooks/` in order: `get_data` → `eda_analysis` → `modeling`.
+> The app loads `final.csv` from Google Cloud Storage on startup. If GCS credentials aren't configured locally, it falls back to the copy in `appengine/data/` automatically — no extra setup needed.
+
+To explore or re-run the analysis, open the notebooks in Colab in order: `get_data` → `eda_analysis` → `modeling`. The final merged dataset (`data/final.csv`) is already included in the repo, so you can run `eda_analysis` and `modeling` directly without needing any API keys. API keys (Census, NREL) are only required if you want to re-collect the raw data from scratch via `get_data`.
 
 ---
 
