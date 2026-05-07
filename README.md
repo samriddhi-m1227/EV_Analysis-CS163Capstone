@@ -257,7 +257,7 @@ Full model details, coefficient plots, and feature importance charts are in the 
 
 B.S. Data Science, San Jose State University ('26)
 
-Samriddhi has experience across data, software, and product roles and holds leadership positions in technical consulting on campus. On this project, she led the data pipeline, exploratory analysis, machine learning modeling, and end-to-end web application development.
+Samriddhi has experience across data, software, and product roles and holds campus leadership positions in technical consulting. On this project, she led the data ingestion pipeline, exploratory analysis, machine learning modeling, Google cloud storage and hosting, live inference modeling and end-to-end web application development.
 
 [LinkedIn](https://www.linkedin.com/in/samriddhi-matharu-827082235/)
 
