@@ -119,32 +119,40 @@ layout = html.Div([
             # 3. REGRESSION METHODS
             section_card(3, "Regression Modeling", [
                 method_block("OLS Baseline (Ordinary Least Squares)", [
-                    "OLS regression was used as a baseline to estimate pairwise and multivariate associations between predictors and EV_perc. "
-                    "OLS minimizes the sum of squared residuals and yields unbiased estimates when assumptions hold: linearity, independence, "
-                    "homoskedasticity, and no perfect multicollinearity. Violations of these assumptions — particularly multicollinearity among income, education, "
-                    "and home value — motivated the shift to Ridge regression for the main predictive models.",
+                    "OLS is the standard starting point for regression — it fits a line (or plane) through the data that minimizes the total squared error between "
+                    "predicted and actual EV adoption rates. It gives us a coefficient for each predictor, telling us how much EV adoption changes on average "
+                    "for a one-unit increase in that variable, holding everything else constant.",
+                    "The issue with OLS here is that income, education, and home value are highly correlated with each other — when predictors move together, "
+                    "OLS struggles to isolate the effect of each one individually, producing unstable estimates. This motivated us to use Ridge regression as the main model.",
                 ]),
                 method_block("Ridge Regression (L2 Regularization)", [
-                    "Ridge regression adds an L2 penalty to the OLS objective: it minimizes RSS + lambda * sum(beta_j^2), where lambda is the regularization strength. "
-                    "This shrinks coefficient estimates toward zero without eliminating predictors, stabilizing estimates in the presence of correlated features.",
-                    "Lambda was selected via cross-validation. Ridge is preferable to LASSO (L1) here because all predictors are theoretically meaningful "
-                    "and we do not want automatic variable selection — we want to compare relative magnitudes across the full predictor set.",
-                    "Ridge was used for: the main EV adoption prediction model, the income-infrastructure interaction model, the high-income subset model, and the PHEV transition pathway model.",
+                    "Ridge regression is a refinement of OLS designed for situations where predictors are correlated. It works by adding a small penalty for large coefficients — "
+                    "this forces the model to spread the 'credit' more evenly across correlated variables rather than over-attributing the effect to whichever one happens to "
+                    "correlate slightly more in the training data. The result is more stable, reliable estimates.",
+                    "The strength of this penalty (called lambda) was tuned using cross-validation. We chose Ridge over LASSO (a related technique that zeros out some predictors entirely) "
+                    "because all our variables are theoretically meaningful — we want to keep them all and compare their relative importance, not drop any automatically.",
+                    "Ridge was used for the main EV adoption model, the income-infrastructure interaction model, the high-income subset model, and the PHEV pathway model.",
                 ]),
                 method_block("Polynomial Regression (Nonlinear Income Effect)", [
-                    "A quadratic term (income^2) was added to the regression specification to test whether EV adoption accelerates at higher income levels. "
-                    "A significant positive quadratic coefficient indicates a convex relationship — adoption rises faster at higher income levels than at lower ones, "
-                    "consistent with EV adoption behaving like a luxury good with affordability thresholds.",
+                    "Standard regression assumes that the relationship between income and EV adoption is a straight line — every additional dollar of income produces the same "
+                    "increase in adoption. But we suspected the relationship curves upward: EV adoption might be low and relatively flat at lower incomes, then accelerate "
+                    "sharply once households cross an affordability threshold.",
+                    "To test this, we added a quadratic income term (income²) to the model. A positive coefficient on that term confirms the relationship is convex — "
+                    "adoption rises faster at higher income levels — which is consistent with EVs behaving more like a luxury good than a linear function of purchasing power.",
                 ]),
-                method_block("Interaction Terms (Income x Infrastructure)", [
-                    "An interaction term (income * PortsPer10kPeople) was included to test whether the effect of charging infrastructure on EV adoption "
-                    "varies by income level. A positive interaction coefficient means that infrastructure access produces larger adoption gains in wealthier communities — "
-                    "indicating that infrastructure alone may widen rather than close equity gaps.",
+                method_block("Interaction Terms (Income × Infrastructure)", [
+                    "A standard regression model assumes that the effect of charging infrastructure on EV adoption is the same regardless of a community's income level. "
+                    "An interaction term relaxes that assumption — it lets the effect of infrastructure vary depending on income.",
+                    "We added an interaction between income and charging port density (income × PortsPer10kPeople). A positive coefficient on this term means that "
+                    "infrastructure has a stronger effect in higher-income communities — in other words, adding more chargers in a wealthy area boosts adoption more than "
+                    "adding the same number of chargers in a lower-income area. This is a direct test of whether infrastructure investment closes or widens equity gaps.",
                 ]),
                 method_block("Sequential Regression for Racial Disparity", [
-                    "Two models were estimated sequentially: (1) racial composition variables predicting EV adoption alone, and (2) the same model adding income, "
-                    "education, and housing controls. Comparing race coefficients between the two models — a partial mediation approach — reveals how much of the "
-                    "apparent racial disparity in adoption is attributable to underlying socioeconomic differences rather than race itself.",
+                    "To understand whether observed racial disparities in EV adoption reflect race itself or underlying socioeconomic differences, we ran two models in sequence. "
+                    "First, we regressed EV adoption on racial composition variables alone. Then we re-ran the same model but added income, education, and housing controls.",
+                    "If the racial composition coefficients shrink substantially when the socioeconomic controls are added, it suggests the disparity is largely explained by "
+                    "structural economic differences rather than race directly. This approach — called partial mediation — is a standard way to decompose an observed association "
+                    "into its direct and indirect components.",
                 ]),
             ]),
 

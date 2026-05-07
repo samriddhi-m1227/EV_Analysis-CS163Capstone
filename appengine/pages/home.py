@@ -300,7 +300,7 @@ layout = html.Div(
                                         html.Img(src="/assets/images/bhavya.png", className="contributor-avatar"),
                                         html.H3("Bhavya", className="contributor-name"),
                                         html.P(
-                                            "Bhavya is a B.S. Data Science 26' student at San Jose State University with experience across data analytics, BI, and ML focused roles. She holds leadership roles in research, analytics and excel. For this project, led the data pipeline, exploratory analysis, and further analysis to support the development and validation of the machine learning model and its findings. maybe this picture.",
+                                            "Bhavya is a B.S. Data Science 26' student at San Jose State University with experience across data analytics, BI, and ML focused roles. She holds leadership roles in research, analytics and excel. For this project, led the data pipeline, exploratory analysis, and further analysis to support the development and validation of the machine learning model and its findings.",
                                             className="contributor-bio",
                                         ),
                                     ],
