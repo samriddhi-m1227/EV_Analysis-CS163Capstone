@@ -148,7 +148,7 @@ To explore or re-run the analysis, open the notebooks in Colab in order: `get_da
 - Cloud Run also reads `final.csv` from GCS and retrains the logistic regression classifier at each cold start — no model artifact needs to be stored or versioned separately.
 
 **Scalability:**
-- App Engine is configured with `instance_class: F2` (512MB RAM, 1.2GHz CPU) and `automatic_scaling` (`target_cpu_utilization: 0.65`, `min_instances: 1`, `max_instances: 3`). A minimum of 1 instance is kept warm to eliminate cold start delays, and the cluster scales up to 3 instances under load.
+- App Engine is configured with `instance_class: F4` (1GB RAM, 2.4GHz CPU) and `automatic_scaling` (`target_cpu_utilization: 0.65`, `min_instances: 1`, `max_instances: 3`). A minimum of 1 instance is kept warm to eliminate cold start delays, and the cluster scales up to 3 instances under load.
 - Cloud Run is fully serverless and scales to zero when idle, each inference request is stateless and handled independently.
 - GCS decouples data from compute: updating the dataset requires only re-uploading `final.csv` to the bucket; neither service needs redeployment.
 
